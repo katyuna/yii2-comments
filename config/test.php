@@ -19,6 +19,13 @@ return [
         '@npm' => '@vendor/npm-asset',
     ],
     'language' => 'en-US',
+    'container' => [
+        'singletons' => [
+            \app\services\CommentService::class => [
+                '__construct()' => [$params['commentRateLimitPerMinute']],
+            ],
+        ],
+    ],
     'components' => [
         'db' => $db,
         'mailer' => [

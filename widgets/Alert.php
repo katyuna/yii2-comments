@@ -70,7 +70,8 @@ class Alert extends \yii\bootstrap5\Widget
                         'options' => [
                             ...$this->options,
                             'id' => $this->getId() . '-' . $type . '-' . $i,
-                            'class' => $this->alertTypes[$type] . $appendClass
+                            'class' => $this->alertTypes[$type] . $appendClass,
+                            'data-testid' => 'flash-' . $type,
                         ],
                     ],
                 );

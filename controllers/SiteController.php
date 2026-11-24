@@ -5,23 +5,33 @@ declare(strict_types=1);
 namespace app\controllers;
 
 use Yii;
-use app\models\ContactForm;
+use app\models\CommentForm;
 use app\models\LoginForm;
-use yii\captcha\CaptchaAction;
+use app\services\CommentService;
+use yii\base\Module;
+use yii\base\Security;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
-use yii\base\Security;
-use yii\mail\MailerInterface;
 use yii\web\Controller;
 use yii\web\ErrorAction;
 use yii\web\Response;
 
+/**
+ * Public pages: the comment feed with the guest comment form.
+ */
 class SiteController extends Controller
 {
+    /**
+     * @param string $id Controller ID
+     * @param Module $module Owning module
+     * @param CommentService $commentService Injected by the Yii DI container
+     * @param Security $security Injected by the Yii DI container
+     * @param array<string, mixed> $config Object config
+     */
     public function __construct(
         $id,
         $module,
-        private readonly MailerInterface $mailer,
+        private readonly CommentService $commentService,
         private readonly Security $security,
         $config = [],
     ) {
@@ -29,7 +39,9 @@ class SiteController extends Controller
     }
 
     /**
-     * {@inheritdoc}
+     * Access and HTTP verb rules.
+     *
+     * @return array<string, mixed>
      */
     public function behaviors(): array
     {
@@ -48,6 +60,7 @@ class SiteController extends Controller
             'verbs' => [
                 'class' => VerbFilter::class,
                 'actions' => [
+                    'index' => ['get', 'post'],
                     'logout' => ['post'],
                 ],
             ],
@@ -55,7 +68,9 @@ class SiteController extends Controller
     }
 
     /**
-     * {@inheritdoc}
+     * Standalone actions.
+     *
+     * @return array<string, mixed>
      */
     public function actions(): array
     {
@@ -63,22 +78,33 @@ class SiteController extends Controller
             'error' => [
                 'class' => ErrorAction::class,
             ],
-            'captcha' => [
-                'class' => CaptchaAction::class,
-                'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
-                'transparent' => true,
-            ],
         ];
     }
 
     /**
-     * Displays homepage.
+     * Shows the comment feed; on POST saves the guest comment.
      *
-     * @return string
+     * @return Response|string
      */
-    public function actionIndex(): string
+    public function actionIndex(): Response|string
     {
-        return $this->render('index');
+        $form = new CommentForm();
+
+        if ($form->load($this->request->post())) {
+            $comment = $this->commentService->create($form, (string) $this->request->userIP);
+
+            if ($comment !== null) {
+                Yii::$app->session->setFlash('success', 'Thank you! Your comment has been published.');
+
+                // Redirect after POST, so a page refresh does not post the comment twice
+                return $this->redirect(['index']);
+            }
+        }
+
+        return $this->render('index', [
+            'commentForm' => $form,
+            'dataProvider' => $this->commentService->feedDataProvider(),
+        ]);
     }
 
     /**
@@ -113,43 +139,5 @@ class SiteController extends Controller
         Yii::$app->user->logout();
 
         return $this->goHome();
-    }
-
-    /**
-     * Displays contact page.
-     *
-     * @return Response|string
-     */
-    public function actionContact(): Response|string
-    {
-        $model = new ContactForm();
-
-        $contact = $model->load($this->request->post()) && $model->contact(
-            $this->mailer,
-            Yii::$app->params['adminEmail'],
-            Yii::$app->params['senderEmail'],
-            Yii::$app->params['senderName'],
-        );
-
-        if ($contact) {
-            Yii::$app->session->setFlash(
-                'success',
-                'Thank you for contacting us. We will respond to you as soon as possible.',
-            );
-
-            return $this->refresh();
-        }
-
-        return $this->render('contact', ['model' => $model]);
-    }
-
-    /**
-     * Displays about page.
-     *
-     * @return string
-     */
-    public function actionAbout(): string
-    {
-        return $this->render('about');
     }
 }

@@ -10,16 +10,9 @@ use yii\helpers\Html;
 
 $items = [
     [
-        'label' => 'Home',
+        'label' => 'Comments',
         'url' => ['/site/index'],
-    ],
-    [
-        'label' => 'About',
-        'url' => ['/site/about'],
-    ],
-    [
-        'label' => 'Contact',
-        'url' => ['/site/contact'],
+        'linkOptions' => ['data-testid' => 'nav-comments'],
     ],
     [
         'label' => 'Login',

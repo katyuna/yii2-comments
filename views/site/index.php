@@ -1,207 +1,100 @@
 <?php
 
-/** @var yii\web\View $this */
+declare(strict_types=1);
 
+/** @var yii\web\View $this */
+/** @var app\models\CommentForm $commentForm */
+/** @var yii\data\ActiveDataProvider $dataProvider */
+
+use app\models\Comment;
+use yii\bootstrap5\ActiveForm;
+use yii\bootstrap5\LinkPager;
 use yii\helpers\Html;
 
-$this->title = 'My Yii Application';
-$this->params['meta_description'] = 'A high-performance PHP framework best for developing web applications. Fast, secure, and professional.';
-$this->params['meta_keywords'] = 'yii, yii2, php, framework, web application, high-performance';
+$this->title = 'Comments';
+
+/** @var Comment[] $comments */
+$comments = $dataProvider->getModels();
 ?>
-<div class="site-index">
+<div class="site-index row justify-content-center">
+    <div class="col-lg-8">
+        <h1 class="h3 mb-4"><?= Html::encode($this->title) ?></h1>
 
-    <!-- Hero banner with Yii gradient -->
-    <div class="hero-banner text-white rounded-4 p-5 mb-4 position-relative overflow-hidden">
-        <?= Html::img(Yii::getAlias('@web/images/yii3_full_white_for_dark.svg'), [
-            'alt' => '',
-            'class' => 'd-none d-lg-block position-absolute hero-logo',
-        ]) ?>
-        <div class="position-relative">
-            <h1 class="display-5 fw-bold mb-3">Build with Yii Framework</h1>
-            <p class="lead opacity-75 mb-4 hero-lead">
-                A high-performance PHP framework best for developing web applications.
-                Fast, secure, and professional.
-            </p>
-            <div class="d-flex gap-2 flex-wrap">
-                <?= Html::a(
-                    'Get Started',
-                    'https://www.yiiframework.com/doc/guide/2.0/en/start-installation',
-                    [
-                        'class' => 'btn btn-light btn-lg fw-semibold px-4',
-                        'rel' => 'noopener',
-                        'target' => '_blank',
-                    ],
-                ) ?>
-                <?= Html::a(
-                    'API Reference',
-                    'https://www.yiiframework.com/doc/api/2.0',
-                    [
-                        'class' => 'btn btn-outline-light btn-lg px-4',
-                        'rel' => 'noopener',
-                        'target' => '_blank',
-                    ],
-                ) ?>
+        <section class="card mb-5" aria-labelledby="comment-form-title">
+            <div class="card-body">
+                <h2 id="comment-form-title" class="h5 card-title">Leave a comment</h2>
+
+                <?php $form = ActiveForm::begin([
+                    'id' => 'comment-form',
+                    'options' => ['data-testid' => 'comment-form'],
+                ]) ?>
+
+                <?= $form->field($commentForm, 'author', [
+                    'errorOptions' => ['class' => 'invalid-feedback', 'data-testid' => 'comment-form-author-error'],
+                ])->textInput([
+                    'maxlength' => Comment::AUTHOR_MAX_LENGTH,
+                    'data-testid' => 'comment-form-author',
+                ]) ?>
+
+                <?= $form->field($commentForm, 'text', [
+                    'errorOptions' => ['class' => 'invalid-feedback', 'data-testid' => 'comment-form-text-error'],
+                ])->textarea([
+                    'rows' => 4,
+                    'maxlength' => Comment::TEXT_MAX_LENGTH,
+                    'data-testid' => 'comment-form-text',
+                ]) ?>
+
+                <?php // Honeypot: hidden from people, bots that fill every field get rejected ?>
+                <div class="d-none" aria-hidden="true">
+                    <?= $form->field($commentForm, 'website', [
+                        'errorOptions' => ['class' => 'invalid-feedback', 'data-testid' => 'comment-form-website-error'],
+                    ])->textInput([
+                        'tabindex' => '-1',
+                        'autocomplete' => 'off',
+                        'data-testid' => 'comment-form-website',
+                    ]) ?>
+                </div>
+
+                <?= Html::submitButton('Post comment', [
+                    'class' => 'btn btn-primary',
+                    'data-testid' => 'comment-form-submit',
+                ]) ?>
+
+                <?php ActiveForm::end() ?>
             </div>
-        </div>
+        </section>
+
+        <section aria-labelledby="comment-feed-title">
+            <h2 id="comment-feed-title" class="h5 mb-3">
+                Latest comments
+                <span class="badge text-bg-secondary" data-testid="comment-feed-count"><?= $dataProvider->getTotalCount() ?></span>
+            </h2>
+
+            <div data-testid="comment-feed">
+                <?php if ($comments === []): ?>
+                    <p class="text-body-secondary" data-testid="comment-feed-empty">No comments yet. Be the first!</p>
+                <?php endif ?>
+
+                <?php foreach ($comments as $comment): ?>
+                    <article class="card mb-3" id="comment-<?= $comment->id ?>"
+                             data-testid="comment-item" data-comment-id="<?= $comment->id ?>">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-baseline mb-2">
+                                <strong data-testid="comment-item-author"><?= Html::encode($comment->author) ?></strong>
+                                <time class="small text-body-secondary"
+                                      datetime="<?= Html::encode(date(DATE_ATOM, $comment->created_at)) ?>"
+                                      data-testid="comment-item-date"><?= Html::encode(Yii::$app->formatter->asDatetime($comment->created_at)) ?></time>
+                            </div>
+                            <p class="card-text mb-0 comment-text" data-testid="comment-item-text"><?= Html::encode($comment->text) ?></p>
+                        </div>
+                    </article>
+                <?php endforeach ?>
+            </div>
+
+            <?= LinkPager::widget([
+                'pagination' => $dataProvider->getPagination(),
+                'options' => ['data-testid' => 'comment-feed-pager'],
+            ]) ?>
+        </section>
     </div>
-
-    <!-- Extensions grid -->
-    <div class="row g-3">
-        <div class="col-md-6 col-lg-4">
-            <div class="card h-100 border-0 shadow-sm rounded-3 extension-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <span class="extension-icon" aria-hidden="true">&#128270;</span>
-                        <h3 class="h6 fw-bold mb-0 ms-2">yii2-debug</h3>
-                    </div>
-                    <p class="text-body-secondary small mb-0">
-                        Debug toolbar and debugger for Yii2. Inspect logs, database queries,
-                        request data, and application performance in real time.
-                    </p>
-                </div>
-                <div class="card-footer bg-transparent border-0 pt-0">
-                    <?= Html::a(
-                        'Learn more &raquo;',
-                        'https://www.yiiframework.com/extension/yiisoft/yii2-debug',
-                        [
-                            'class' => 'btn btn-sm btn-outline-secondary',
-                            'rel' => 'noopener',
-                            'target' => '_blank',
-                        ],
-                    ) ?>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6 col-lg-4">
-            <div class="card h-100 border-0 shadow-sm rounded-3 extension-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <span class="extension-icon" aria-hidden="true">&#9881;</span>
-                        <h3 class="h6 fw-bold mb-0 ms-2">yii2-gii</h3>
-                    </div>
-                    <p class="text-body-secondary small mb-0">
-                        Automatic code generator for models, controllers, CRUD, forms, and modules.
-                        Boost your productivity with scaffolding.
-                    </p>
-                </div>
-                <div class="card-footer bg-transparent border-0 pt-0">
-                    <?= Html::a(
-                        'Learn more &raquo;',
-                        'https://www.yiiframework.com/extension/yiisoft/yii2-gii',
-                        [
-                            'class' => 'btn btn-sm btn-outline-secondary',
-                            'rel' => 'noopener',
-                            'target' => '_blank',
-                        ],
-                    ) ?>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6 col-lg-4">
-            <div class="card h-100 border-0 shadow-sm rounded-3 extension-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <span class="extension-icon" aria-hidden="true">&#128203;</span>
-                        <h3 class="h6 fw-bold mb-0 ms-2">yii2-queue</h3>
-                    </div>
-                    <p class="text-body-secondary small mb-0">
-                        Asynchronous job queue with support for DB, Redis, AMQP, Beanstalk,
-                        and SQS drivers. Run background tasks with ease.
-                    </p>
-                </div>
-                <div class="card-footer bg-transparent border-0 pt-0">
-                    <?= Html::a(
-                        'Learn more &raquo;',
-                        'https://www.yiiframework.com/extension/yiisoft/yii2-queue',
-                        [
-                            'class' => 'btn btn-sm btn-outline-secondary',
-                            'rel' => 'noopener',
-                            'target' => '_blank',
-                        ],
-                    ) ?>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6 col-lg-4">
-            <div class="card h-100 border-0 shadow-sm rounded-3 extension-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <span class="extension-icon" aria-hidden="true">&#9889;</span>
-                        <h3 class="h6 fw-bold mb-0 ms-2">yii2-redis</h3>
-                    </div>
-                    <p class="text-body-secondary small mb-0">
-                        Redis integration providing cache, session, and ActiveRecord support.
-                        Leverage in-memory storage for blazing-fast data access.
-                    </p>
-                </div>
-                <div class="card-footer bg-transparent border-0 pt-0">
-                    <?= Html::a(
-                        'Learn more &raquo;',
-                        'https://www.yiiframework.com/extension/yiisoft/yii2-redis',
-                        [
-                            'class' => 'btn btn-sm btn-outline-secondary',
-                            'rel' => 'noopener',
-                            'target' => '_blank',
-                        ],
-                    ) ?>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6 col-lg-4">
-            <div class="card h-100 border-0 shadow-sm rounded-3 extension-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <span class="extension-icon" aria-hidden="true">&#128269;</span>
-                        <h3 class="h6 fw-bold mb-0 ms-2">yii2-elasticsearch</h3>
-                    </div>
-                    <p class="text-body-secondary small mb-0">
-                        Elasticsearch integration with ActiveRecord and query builder.
-                        Add powerful full-text search capabilities to your application.
-                    </p>
-                </div>
-                <div class="card-footer bg-transparent border-0 pt-0">
-                    <?= Html::a(
-                        'Learn more &raquo;',
-                        'https://www.yiiframework.com/extension/yiisoft/yii2-elasticsearch',
-                        [
-                            'class' => 'btn btn-sm btn-outline-secondary',
-                            'rel' => 'noopener',
-                            'target' => '_blank',
-                        ],
-                    ) ?>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6 col-lg-4">
-            <div class="card h-100 border-0 shadow-sm rounded-3 extension-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <span class="extension-icon" aria-hidden="true">&#9993;</span>
-                        <h3 class="h6 fw-bold mb-0 ms-2">yii2-symfonymailer</h3>
-                    </div>
-                    <p class="text-body-secondary small mb-0">
-                        Email sending integration powered by Symfony Mailer.
-                        Compose and deliver rich HTML emails with attachments and templates.
-                    </p>
-                </div>
-                <div class="card-footer bg-transparent border-0 pt-0">
-                    <?= Html::a(
-                        'Learn more &raquo;',
-                        'https://github.com/yiisoft/yii2-symfonymailer',
-                        [
-                            'class' => 'btn btn-sm btn-outline-secondary',
-                            'rel' => 'noopener',
-                            'target' => '_blank',
-                        ],
-                    ) ?>
-                </div>
-            </div>
-        </div>
-    </div>
-
 </div>
