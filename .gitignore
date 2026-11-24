@@ -1,0 +1,11 @@
+.env
+/vendor/
+/runtime/
+/web/assets/
+/tests/_output/
+/tests/e2e/node_modules/
+/tests/e2e/test-results/
+/tests/e2e/playwright-report/
+.php-cs-fixer.cache
+.idea/
+.DS_Store

@@ -1,0 +1,89 @@
+# Yii2 Comments — local environment
+# Usage: cp .env.example .env && docker compose up -d --build
+# App:        http://localhost:${APP_PORT:-8080}
+# Centrifugo: ws://localhost:${CENTRIFUGO_PORT:-8000}/connection/websocket
+
+services:
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: comments-php
+    working_dir: /app
+    volumes:
+      - ./:/app
+    env_file: .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+      centrifugo:
+        condition: service_started
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: comments-nginx
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      - ./:/app:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - php
+
+  mysql:
+    image: mysql:8.0
+    container_name: comments-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${MYSQL_PORT:-3307}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      # Creates the separate test DB (app_test) on first start
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  centrifugo:
+    # Pinned to v5: config below uses v5 environment variable names
+    image: centrifugo/centrifugo:v5
+    container_name: comments-centrifugo
+    command: centrifugo
+    environment:
+      CENTRIFUGO_TOKEN_HMAC_SECRET_KEY: ${CENTRIFUGO_TOKEN_SECRET}
+      CENTRIFUGO_API_KEY: ${CENTRIFUGO_API_KEY}
+      CENTRIFUGO_ALLOWED_ORIGINS: ${CENTRIFUGO_ALLOWED_ORIGINS}
+      # Channels in the "admin" namespace require a valid JWT (issued by Yii to logged-in admins)
+      CENTRIFUGO_NAMESPACES: '[{"name":"admin"}]'
+    ports:
+      - "${CENTRIFUGO_PORT:-8000}:8000"
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+
+  # E2E tests: started only on demand -> docker compose --profile e2e run --rm playwright
+  playwright:
+    profiles: ["e2e"]
+    # Keep the image tag equal to @playwright/test version in tests/e2e/package.json
+    image: mcr.microsoft.com/playwright:v1.49.1-noble
+    container_name: comments-playwright
+    working_dir: /e2e
+    volumes:
+      - ./tests/e2e:/e2e
+    environment:
+      BASE_URL: http://nginx
+      CI: ${CI:-}
+    ipc: host
+    depends_on:
+      - nginx
+    command: sh -c "npm ci && npx playwright test"
+
+volumes:
+  mysql-data:
