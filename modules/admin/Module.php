@@ -15,7 +15,7 @@ class Module extends \yii\base\Module
     public $controllerNamespace = 'app\modules\admin\controllers';
 
     /** @var string */
-    public $defaultRoute = 'default';
+    public $defaultRoute = 'comment';
 
     /**
      * Access rules for the whole module: guests may only open the login form.
