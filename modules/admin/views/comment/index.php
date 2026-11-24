@@ -4,24 +4,45 @@ declare(strict_types=1);
 
 /** @var yii\web\View $this */
 /** @var yii\data\ActiveDataProvider $dataProvider */
+/** @var string $wsToken Centrifugo connection token */
+/** @var string $wsChannel Channel with new comments */
 
+use app\assets\AdminRealtimeAsset;
 use app\models\Comment;
 use yii\bootstrap5\LinkPager;
 use yii\helpers\Html;
+use yii\helpers\Url;
 
 $this->title = 'Comments';
+AdminRealtimeAsset::register($this);
 
 /** @var Comment[] $comments */
 $comments = $dataProvider->getModels();
+$pagination = $dataProvider->getPagination();
+// New comments are inserted at the top, so only the first page shows them live
+$isFirstPage = $pagination === false || $pagination->getPage() === 0;
 ?>
 <div class="admin-comment-index">
-    <h1 class="h3 mb-3">
+    <h1 class="h3 mb-3 d-flex align-items-center gap-2">
         <?= Html::encode($this->title) ?>
         <span class="badge text-bg-secondary" data-testid="admin-comment-count"><?= $dataProvider->getTotalCount() ?></span>
+        <span class="badge text-bg-secondary fs-6 ms-auto" data-testid="realtime-status" data-state="connecting"
+              title="Real-time updates over WebSocket">Connecting…</span>
     </h1>
 
     <div class="table-responsive">
-        <table class="table table-striped align-middle" data-testid="admin-comment-list">
+        <?= Html::beginTag('table', [
+            'class' => 'table table-striped align-middle',
+            'data' => [
+                'testid' => 'admin-comment-list',
+                'ws-token' => $wsToken,
+                'ws-channel' => $wsChannel,
+                'token-url' => Url::to(['realtime/token']),
+                'update-url' => Url::to(['update', 'id' => '__ID__']),
+                'delete-url' => Url::to(['delete', 'id' => '__ID__']),
+                'live-insert' => $isFirstPage ? '1' : '0',
+            ],
+        ]) ?>
             <thead>
             <tr>
                 <th scope="col">ID</th>

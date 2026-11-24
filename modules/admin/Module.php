@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\modules\admin;
 
 use yii\filters\AccessControl;
+use yii\web\ForbiddenHttpException;
 
 /**
  * Admin area (/admin). Every page except the login form requires a logged-in admin.
@@ -32,6 +33,15 @@ class Module extends \yii\base\Module
                         'allow' => true,
                         'controllers' => ['admin/auth'],
                         'actions' => ['login'],
+                    ],
+                    [
+                        // Called by JavaScript: a 403 tells the WebSocket client to stop, a redirect would not
+                        'allow' => false,
+                        'controllers' => ['admin/realtime'],
+                        'roles' => ['?'],
+                        'denyCallback' => static function (): void {
+                            throw new ForbiddenHttpException('Log in as admin to receive real-time updates.');
+                        },
                     ],
                     [
                         'allow' => true,

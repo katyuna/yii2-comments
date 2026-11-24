@@ -6,7 +6,9 @@ namespace app\modules\admin\controllers;
 
 use Yii;
 use app\models\Comment;
+use app\services\CentrifugoTokenIssuer;
 use app\services\CommentService;
+use app\services\RealtimePublisherInterface;
 use yii\base\Module;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
@@ -22,12 +24,14 @@ class CommentController extends Controller
      * @param string $id Controller ID
      * @param Module $module Owning module
      * @param CommentService $commentService Injected by the Yii DI container
+     * @param CentrifugoTokenIssuer $tokenIssuer Injected by the Yii DI container
      * @param array<string, mixed> $config Object config
      */
     public function __construct(
         $id,
         $module,
         private readonly CommentService $commentService,
+        private readonly CentrifugoTokenIssuer $tokenIssuer,
         $config = [],
     ) {
         parent::__construct($id, $module, $config);
@@ -51,7 +55,7 @@ class CommentController extends Controller
     }
 
     /**
-     * Lists all comments, newest first.
+     * Lists all comments, newest first; new ones are added live over WebSocket.
      *
      * @return string
      */
@@ -59,6 +63,8 @@ class CommentController extends Controller
     {
         return $this->render('index', [
             'dataProvider' => $this->commentService->adminDataProvider(),
+            'wsToken' => $this->tokenIssuer->connectionToken((string) Yii::$app->user->id),
+            'wsChannel' => RealtimePublisherInterface::ADMIN_COMMENTS_CHANNEL,
         ]);
     }
 

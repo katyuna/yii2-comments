@@ -1,7 +1,7 @@
 # Yii2 Comments — local environment
 # Usage: cp .env.example .env && docker compose up -d --build
 # App:        http://localhost:${APP_PORT:-8080}
-# Centrifugo: ws://localhost:${CENTRIFUGO_PORT:-8000}/connection/websocket
+# WebSocket:  ws://localhost:${APP_PORT:-8080}/connection/websocket (nginx proxies it to Centrifugo)
 
 services:
   php:
@@ -29,6 +29,7 @@ services:
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - php
+      - centrifugo
 
   mysql:
     image: mysql:8.0
@@ -59,8 +60,9 @@ services:
       CENTRIFUGO_TOKEN_HMAC_SECRET_KEY: ${CENTRIFUGO_TOKEN_SECRET}
       CENTRIFUGO_API_KEY: ${CENTRIFUGO_API_KEY}
       CENTRIFUGO_ALLOWED_ORIGINS: ${CENTRIFUGO_ALLOWED_ORIGINS}
-      # Channels in the "admin" namespace require a valid JWT (issued by Yii to logged-in admins)
-      CENTRIFUGO_NAMESPACES: '[{"name":"admin"}]'
+      # Only clients with a valid JWT can connect (Yii issues it to logged-in admins only);
+      # they may subscribe to "admin:" channels. History lets a reconnected browser get missed comments.
+      CENTRIFUGO_NAMESPACES: '[{"name":"admin","allow_subscribe_for_client":true,"history_size":100,"history_ttl":"300s","force_recovery":true}]'
     ports:
       - "${CENTRIFUGO_PORT:-8000}:8000"
     ulimits:
