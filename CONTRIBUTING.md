@@ -88,5 +88,7 @@ underscores or capitals. Good: `feature/admin-realtime-list`. Bad: `Feature/Admi
 
 - **Git hook**: run `make hooks` once after cloning. Before each commit, `.githooks/pre-commit`
   warns if you are on `main` or the branch name breaks the rules. It warns only and does not block the commit.
+- **`main` protection**: off on purpose for now. When all phase-2 test branches are merged,
+  Claude Code reminds the owner to decide whether to enable it (require a PR and green CI).
 - **Claude Code** checks the current branch before changing files. If you are on `main`
   or on a branch for another task, it proposes a branch name and asks you first.

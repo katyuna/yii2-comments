@@ -4,6 +4,16 @@ A simple commenting system on Yii2, built mainly to demonstrate a test system.
 Guests post comments to a public feed. Admins moderate them and see new comments
 in real time over WebSockets (Centrifugo).
 
+## Prerequisites
+
+Install on the host first:
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (on Windows with the WSL2 backend), check: `docker compose version`
+- Git, check: `git --version`
+- `make`, check: `make --version` (Windows: `scoop install make`, or run commands from WSL / Git Bash)
+
+PHP, Composer and Node.js are not needed on the host: everything runs in containers.
+
 ## Quick start
 
 ```bash
@@ -25,6 +35,7 @@ Full rules: **[CONTRIBUTING.md](CONTRIBUTING.md)**.
 - Names use kebab-case: `feature/guest-comment-form`, `test/e2e-guest-comment-form`.
 - Start from a fresh `main`, keep branches short-lived, rebase on `main` before the PR.
 - Merge with squash only; the branch is deleted after merge.
+- `main` is intentionally not protected on GitHub; revisit after all tests are written.
 
 ## Traceability (keep in sync with CLAUDE.md)
 
