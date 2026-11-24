@@ -112,7 +112,9 @@ docker/            Dockerfiles and configs per service
 
 ## Testing rules
 
-- **Every behaviour change ships with a test in the same commit/PR.**
+- **Every behaviour change gets tests at each relevant level**, each level in its own
+  `test/<level>-<feature>` branch/PR (see Git workflow). The tests are written in
+  phase 2, after the whole app is built (see "Work plan").
 - **Never delete, skip or weaken a test to make it pass.** If a test is wrong, explain why before changing it.
 - Test pyramid: many unit, fewer functional, few e2e.
 - Arrange–Act–Assert structure; one behaviour per test; descriptive names
@@ -124,7 +126,7 @@ docker/            Dockerfiles and configs per service
 - E2E uses Page Objects (`tests/e2e/pages/`). Realtime test uses **two browser contexts**
   (guest + admin) in one spec.
 - Tags: Codeception `@group smoke|regression`; Playwright `@smoke` / `@regression` in test titles.
-- A test for every fixed bug, tagged `regression`.
+- A test for every fixed bug, tagged `regression`, in branch `test/regression-<bug-name>`.
 - On failure keep artifacts: Codeception `_output/`, Playwright trace + screenshot + video (CI uploads them).
 
 ### Suites
@@ -154,22 +156,65 @@ Update this table whenever a test is added, renamed or removed.
 
 ## Git workflow
 
-- **GitHub Flow.** `main` is always green and protected; no direct commits to `main`.
-- Branch names: `feature/<short-name>`, `fix/<short-name>`, `test/<short-name>`,
-  `chore/<short-name>`, `docs/<short-name>`, `ci/<short-name>`.
-- Merge via Pull Request only, after CI is green.
+Full branching rules: **`CONTRIBUTING.md`** (source of truth; summary in README).
+
+- **GitHub Flow.** `main` is always green. It is intentionally *not* protected on GitHub;
+  no direct commits to `main` by convention.
+- **One feature = one branch** `feature/<feature-name>`, containing **production code only**.
+- **Each test level = its own branch** `test/<level>-<feature-name>`,
+  level ∈ `unit | smoke | functional | e2e | regression | load`.
+  A feature is done only when the feature branch and all its test-level branches are merged.
+- Other types: `fix/`, `chore/`, `docs/`, `ci/`. Names are kebab-case (`[a-z0-9-]`), named after the feature.
+- Branch from a fresh `main`; keep branches short-lived (one branch = one PR);
+  rebase on `origin/main` before opening the PR.
+- Merge via Pull Request only, after CI is green. **Squash merge only**; the PR title is a
+  Conventional Commit (it becomes the commit in `main`). Delete the branch after merge.
+- Fill in `.github/pull_request_template.md`.
+- `make hooks` enables `.githooks/pre-commit`, which warns (does not block) on `main` or a bad branch name.
+- Bug fixes: `fix/<bug-name>` (code only), then `test/regression-<bug-name>` with the test
+  that reproduces the bug, tagged `regression`.
+- Order: **app first, tests second** (see "Work plan"). Known trade-off: until phase 2
+  is done, `main` holds code not covered by tests. Phase 2 starts right after phase 1;
+  no new features until every feature has its test branches merged.
 - **Conventional Commits**, English, imperative mood, ≤ 72 chars subject:
   `feat(comment): add guest comment form`,
   `test(e2e): cover realtime comment in admin list`,
   `fix(feed): encode comment text`, `ci: shard playwright run`, `docs(readme): ...`.
-- Atomic commits: one logical change each, code + its test together.
+- Atomic commits: one logical change each.
 - Before committing: `make lint` and the relevant test suite must pass.
 - Claude Code: **do not commit or push unless explicitly asked.** Propose the commit message.
+
+### Claude Code: branch check before every task
+
+Before changing any file, run `git branch --show-current`.
+- If it is `main`, or a branch for a different feature/test level than the task:
+  **stop, remind the owner, propose a branch name** (`<type>/<kebab-case-feature-name>`)
+  and **ask the owner to confirm or rename it**. Never pick the name silently.
+- After confirmation: `git switch main && git pull`, then `git switch -c <branch>`.
+- If a task mixes production code and tests, split it: feature branch first, then one branch per test level.
+
+## Work plan
+
+**Phase 1 — app.** Feature branches in this order, each merged before the next starts:
+
+| # | Branch | Scope |
+|---|---|---|
+| 1 | `chore/yii2-setup` | Yii2 basic app, DB config from env vars, `app_test` config |
+| 2 | `feature/guest-comment-form` | `comment` migration, `Comment` model, `CommentService`, form + public feed |
+| 3 | `feature/admin-auth` | Admin user from `ADMIN_USERNAME`/`ADMIN_PASSWORD`, login/logout, `admin` module behind `AccessControl` |
+| 4 | `feature/admin-crud` | Admin list, edit, delete (`VerbFilter` POST) |
+| 5 | `feature/admin-realtime` | `RealtimePublisher` (Centrifugo HTTP API), JWT for admin, `admin-realtime.js` |
+
+`data-testid` attributes are added to views already in phase 1, so phase 2 does not touch views.
+
+**Phase 2 — tests.** For each feature, in the same order: `test/unit-…`, `test/smoke-…`,
+`test/functional-…`, `test/e2e-…`; then `ci/github-actions`, regression, load (bonus).
 
 ## Definition of done (per feature)
 
 1. Code follows the rules above, `make lint` is clean.
-2. Tests added/updated, all suites pass locally in Docker.
+2. Phase 1: the app works in Docker (checked by hand). Phase 2: all test-level branches
+   for the feature merged; all suites pass locally in Docker.
 3. Traceability table updated (here and in README).
 4. `.env.example` / README updated if config or commands changed.
 5. Short explanation of the change given to the owner.
