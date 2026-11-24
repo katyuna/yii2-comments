@@ -20,6 +20,7 @@ Full rules: **[CONTRIBUTING.md](CONTRIBUTING.md)**.
 - One feature = one branch with production code only: `feature/<feature-name>`.
 - Each test level of a feature gets its own branch: `test/<level>-<feature-name>`
   (`unit`, `smoke`, `functional`, `e2e`, `regression`, `load`).
+- Order: app first (all feature branches), then tests (all test branches). Plan: `CLAUDE.md`.
 - Bug fix: `fix/<bug-name>`, then its regression test in `test/regression-<bug-name>`.
 - Names use kebab-case: `feature/guest-comment-form`, `test/e2e-guest-comment-form`.
 - Start from a fresh `main`, keep branches short-lived, rebase on `main` before the PR.

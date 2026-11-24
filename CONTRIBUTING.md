@@ -23,9 +23,12 @@ Every change, however small, lives in its own branch and reaches `main` through 
 
   Skip a level only if it has nothing to cover for that feature (say why in the PR).
 - A feature is **done** only when its feature branch and all its test-level branches are merged.
-- **Known trade-off:** between merging `feature/<feature>` and its test branches, `main`
-  holds code that is not covered by tests yet. This is a deliberate choice: every PR stays
-  small and reviews one thing. Keep the gap short by merging the test branches right after the feature.
+- **Order: app first, tests second.** Phase 1: all feature branches, one after another.
+  Phase 2: the test-level branches for every feature (unit → smoke → functional → e2e),
+  then CI, regression and load. The phase plan is in `CLAUDE.md` ("Work plan").
+- **Known trade-off:** until phase 2 is done, `main` holds code that is not covered by tests
+  yet. This is a deliberate choice: the whole flow exists before tests are designed, and every
+  PR stays small and reviews one thing. Start phase 2 right after phase 1.
 
 ### Bug fixes
 
