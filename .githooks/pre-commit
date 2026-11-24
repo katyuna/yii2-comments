@@ -1,0 +1,26 @@
+#!/bin/sh
+# Reminds about the branching rules (CONTRIBUTING.md). Warns only, never blocks:
+# main is intentionally not protected, so the owner decides.
+
+branch=$(git symbolic-ref --short HEAD 2>/dev/null) || exit 0
+
+if [ "$branch" = "main" ]; then
+    echo "WARNING: you are committing to 'main'." >&2
+    echo "  Every change needs its own branch:  git switch -c feature/<feature-name>" >&2
+    echo "  See CONTRIBUTING.md" >&2
+    exit 0
+fi
+
+if ! echo "$branch" | grep -Eq '^(feature|fix|test|chore|docs|ci)/[a-z0-9]+(-[a-z0-9]+)*$'; then
+    echo "WARNING: branch '$branch' does not follow <type>/<kebab-case-name>." >&2
+    echo "  Types: feature, fix, test, chore, docs, ci. See CONTRIBUTING.md" >&2
+    exit 0
+fi
+
+if echo "$branch" | grep -q '^test/' \
+    && ! echo "$branch" | grep -Eq '^test/(unit|smoke|functional|e2e|regression|load)-[a-z0-9]'; then
+    echo "WARNING: test branch '$branch' should be test/<level>-<feature>." >&2
+    echo "  Levels: unit, smoke, functional, e2e, regression, load. See CONTRIBUTING.md" >&2
+fi
+
+exit 0

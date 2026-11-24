@@ -1,7 +1,10 @@
 DC = docker compose
 PHP = $(DC) exec php
 
-.PHONY: up down sh install init migrate migrate-test test-unit test-smoke test-func test-e2e test-regress test lint fix
+.PHONY: hooks up down sh install init migrate migrate-test test-unit test-smoke test-func test-e2e test-regress test lint fix
+
+hooks:         ## Once after cloning: enable branching reminder git hooks
+	git config core.hooksPath .githooks
 
 up:            ## Build and start all containers
 	$(DC) up -d --build
