@@ -42,6 +42,7 @@ return [
         ],
         'user' => [
             'identityClass' => \app\models\User::class,
+            'loginUrl' => ['/admin/auth/login'],
         ],
         'request' => [
             'cookieValidationKey' => 'test',
@@ -52,6 +53,11 @@ return [
                 'domain' => 'localhost',
             ],
             */
+        ],
+    ],
+    'modules' => [
+        'admin' => [
+            'class' => \app\modules\admin\Module::class,
         ],
     ],
     'params' => $params,

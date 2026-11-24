@@ -6,83 +6,104 @@ namespace app\models;
 
 use Yii;
 use yii\base\Model;
-use yii\base\Security;
 
 /**
- * LoginForm is the model behind the login form.
- *
- * @property-read User|null $user
+ * The admin login form.
  */
 class LoginForm extends Model
 {
-    public string $username = '';
-    public string $password = '';
-    public bool $rememberMe = true;
-    private User|null $_user = null;
-    private bool $_userLoaded = false;
-    public function __construct(private readonly Security $security, $config = [])
-    {
-        parent::__construct($config);
-    }
+    private const REMEMBER_ME_SECONDS = 3600 * 24 * 30;
+
+    // Not typed: a crafted request may send an array, which must fail validation, not crash
+    /** @var mixed */
+    public $username = '';
+    /** @var mixed */
+    public $password = '';
+    /** @var mixed */
+    public $rememberMe = false;
+
+    private ?User $user = null;
+    private bool $userLoaded = false;
 
     /**
-     * @return array<int, array<int|string, mixed>> the validation rules.
+     * Validation rules.
+     *
+     * @return array<int, array<int|string, mixed>>
      */
     public function rules(): array
     {
         return [
-            // username and password are both required
+            ['username', 'trim'],
             [['username', 'password'], 'required'],
-            // rememberMe must be a boolean value
+            [['username', 'password'], 'string', 'max' => 255],
             ['rememberMe', 'boolean'],
-            // password is validated by validatePassword()
             ['password', 'validatePassword'],
         ];
     }
 
     /**
-     * Validates the password.
-     * This method serves as the inline validation for password.
+     * Human-readable attribute names for the form.
      *
-     * @param string $attribute the attribute currently being validated
-     * @param array<string, mixed>|null $params the additional name-value pairs given in the rule
+     * @return array<string, string>
      */
-    public function validatePassword(string $attribute, array|null $params): void
+    public function attributeLabels(): array
     {
-        if (!$this->hasErrors()) {
-            $user = $this->getUser();
+        return [
+            'username' => 'Username',
+            'password' => 'Password',
+            'rememberMe' => 'Remember me',
+        ];
+    }
 
-            if (!$user || !$this->security->validatePassword($this->password, $user->passwordHash)) {
-                $this->addError($attribute, 'Incorrect username or password.');
-            }
+    /**
+     * Inline validator: checks the username and password pair.
+     *
+     * @param string $attribute Attribute being validated
+     * @return void
+     */
+    public function validatePassword(string $attribute): void
+    {
+        if ($this->hasErrors()) {
+            return;
+        }
+
+        $user = $this->getUser();
+
+        // Same message for a wrong username and a wrong password, so usernames cannot be guessed
+        if ($user === null || !$user->validatePassword((string) $this->password)) {
+            $this->addError($attribute, 'Incorrect username or password.');
         }
     }
 
     /**
-     * Logs in a user using the provided username and password.
-     * @return bool whether the user is logged in successfully
+     * Logs the user in if the form is valid.
+     *
+     * @return bool Whether the user is logged in
      */
     public function login(): bool
     {
-        if ($this->validate()) {
-            return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600 * 24 * 30 : 0);
+        if (!$this->validate()) {
+            return false;
         }
 
-        return false;
+        $user = $this->getUser();
+
+        return $user !== null
+            && Yii::$app->user->login($user, $this->rememberMe ? self::REMEMBER_ME_SECONDS : 0);
     }
 
     /**
-     * Finds user by [[username]]
+     * Finds the user by the entered username (once per form).
      *
      * @return User|null
      */
-    public function getUser(): User|null
+    private function getUser(): ?User
     {
-        if (!$this->_userLoaded) {
-            $this->_user = User::findByUsername($this->username);
-            $this->_userLoaded = true;
+        if (!$this->userLoaded) {
+            $this->user = User::findByUsername((string) $this->username);
+            $this->userLoaded = true;
         }
 
-        return $this->_user;
+        return $this->user;
     }
 }
