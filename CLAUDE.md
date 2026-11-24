@@ -38,6 +38,10 @@ Do not add new dependencies (Composer or npm) without saying why and asking firs
 
 All PHP commands run **inside the container**, never on the host.
 
+Host prerequisites (install before anything else): Docker Desktop (WSL2 backend on Windows),
+Git and `make` (on Windows: `scoop install make`, or use WSL / Git Bash).
+PHP, Composer and Node.js are **not** needed on the host.
+
 ```bash
 make up            # docker compose up -d --build
 make down          # docker compose down
@@ -159,7 +163,7 @@ Update this table whenever a test is added, renamed or removed.
 Full branching rules: **`CONTRIBUTING.md`** (source of truth; summary in README).
 
 - **GitHub Flow.** `main` is always green. It is intentionally *not* protected on GitHub;
-  no direct commits to `main` by convention.
+  no direct commits to `main` by convention. Revisit after phase 2 (see "Work plan").
 - **One feature = one branch** `feature/<feature-name>`, containing **production code only**.
 - **Each test level = its own branch** `test/<level>-<feature-name>`,
   level ∈ `unit | smoke | functional | e2e | regression | load`.
@@ -209,6 +213,10 @@ Before changing any file, run `git branch --show-current`.
 
 **Phase 2 — tests.** For each feature, in the same order: `test/unit-…`, `test/smoke-…`,
 `test/functional-…`, `test/e2e-…`; then `ci/github-actions`, regression, load (bonus).
+
+**After phase 2 — reminder.** When the last phase-2 branch is merged, **remind the owner**
+that `main` is still unprotected and ask whether to enable branch protection on GitHub
+(require a PR and green CI). Do not change GitHub settings yourself.
 
 ## Definition of done (per feature)
 
