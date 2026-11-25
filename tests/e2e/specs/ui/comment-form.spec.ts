@@ -96,7 +96,11 @@ test.describe('Comment form', () => {
    *
    * @flowStep 3
    */
-  test('UI-05 double click on Post comment sends one comment @ui @regression', async ({ page, feedPage, db }) => {
+  test('UI-05 double click on Post comment sends one comment @ui @regression', async ({
+    page,
+    feedPage,
+    db,
+  }) => {
     const text = uniqueText('UI-05');
     let postRequests = 0;
     let releasePost: () => void = () => undefined;
