@@ -43,6 +43,8 @@ Git and `make` (on Windows: `scoop install make`, or use WSL / Git Bash).
 PHP, Composer and Node.js are **not** needed on the host.
 
 ```bash
+make start         # one command: create .env if missing + up + setup
+make stop          # = make down (DB data is kept)
 make up            # docker compose up -d --build
 make down          # docker compose down
 make sh            # shell into php container
