@@ -29,7 +29,7 @@ return [
                 '__construct()' => [$params['centrifugo']['apiUrl'], $params['centrifugo']['apiKey']],
             ],
             \app\services\CentrifugoTokenIssuer::class => [
-                '__construct()' => [$params['centrifugo']['tokenSecret']],
+                '__construct()' => [$params['centrifugo']['tokenSecret'], $params['centrifugo']['tokenTtl']],
             ],
         ],
     ],

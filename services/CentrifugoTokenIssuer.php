@@ -14,13 +14,18 @@ use yii\base\InvalidConfigException;
  */
 class CentrifugoTokenIssuer
 {
-    private const TTL_SECONDS = 3600;
+    /** Default token lifetime: one hour */
+    public const DEFAULT_TTL_SECONDS = 3600;
 
     /**
      * @param string $secret HMAC secret shared with Centrifugo (CENTRIFUGO_TOKEN_SECRET)
+     * @param int $ttlSeconds Token lifetime (CENTRIFUGO_TOKEN_TTL). After it the browser must ask
+     *                        for a new token, so a logged-out admin stops receiving events within it.
      */
-    public function __construct(private readonly string $secret)
-    {
+    public function __construct(
+        private readonly string $secret,
+        private readonly int $ttlSeconds = self::DEFAULT_TTL_SECONDS,
+    ) {
     }
 
     /**
@@ -41,7 +46,7 @@ class CentrifugoTokenIssuer
         return $this->sign([
             'sub' => $userId,
             'iat' => $now,
-            'exp' => $now + self::TTL_SECONDS,
+            'exp' => $now + $this->ttlSeconds,
         ]);
     }
 
