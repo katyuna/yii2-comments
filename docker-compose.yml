@@ -94,6 +94,8 @@ services:
       CENTRIFUGO_API_URL: http://centrifugo-test:8000/api
       # All test browsers come from one Docker IP; the limit itself is covered by unit/functional tests
       COMMENT_RATE_LIMIT_PER_MINUTE: "10000"
+      # Short-lived WebSocket tokens, so E2E can check what happens after logout (E-09)
+      CENTRIFUGO_TOKEN_TTL: ${CENTRIFUGO_TEST_TOKEN_TTL:-5}
     depends_on:
       mysql:
         condition: service_healthy
@@ -138,6 +140,8 @@ services:
     environment:
       BASE_URL: http://nginx-test
       CI: ${CI:-}
+      # Same value as php-test, so E-09 knows how long to wait for the token refresh
+      CENTRIFUGO_TOKEN_TTL: ${CENTRIFUGO_TEST_TOKEN_TTL:-5}
     ipc: host
     depends_on:
       - nginx-test
