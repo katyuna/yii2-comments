@@ -85,6 +85,28 @@ final class Smoke extends Module
     }
 
     /**
+     * Sends a GET request and returns only the HTTP status (redirects are not followed).
+     *
+     * Used for addresses outside the test stand, e.g. the dev app at http://nginx.
+     *
+     * @param string $url Full URL
+     * @param int $timeoutSeconds How long to wait for the answer
+     * @return int HTTP status code
+     */
+    public function grabHttpStatus(string $url, int $timeoutSeconds = self::TIMEOUT_SECONDS): int
+    {
+        $curl = curl_init($url);
+        curl_setopt_array($curl, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => $timeoutSeconds,
+        ]);
+        $response = curl_exec($curl);
+        $this->assertIsString($response, "No answer from {$url}: " . curl_error($curl));
+
+        return (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+    }
+
+    /**
      * Connects to a database with the app's credentials from .env.
      *
      * @param string $database Database name, e.g. "app" or "app_test"
