@@ -10,7 +10,7 @@ A simple commenting system on Yii2, used mainly to demonstrate a **test system**
 2. **Admin area** — an admin logs in, sees the list of comments, can edit/delete them.
    New comments appear in the admin list **in real time via WebSockets** (no page reload).
 3. **Environment** — everything runs in Docker (`docker compose up`).
-4. **Tests** — unit, smoke, e2e, regression (+ load as a bonus). Every step of the
+4. **Tests** — unit, functional, smoke, UI, e2e, regression. Every step of the
    comment flow must be covered by a named test (see "Traceability" below).
 
 The repository owner is new to PHP. **After every change, explain in 2–5 plain sentences
@@ -28,7 +28,6 @@ what was changed and why**, and name the Yii2 concept involved (e.g. "ActiveReco
 | WebSockets | Centrifugo v5 (own container); PHP publishes via HTTP API, browser subscribes with `centrifuge-js` |
 | Unit / functional tests | Codeception 5 (ships with yii2-app-basic) |
 | E2E tests | Playwright (TypeScript), folder `tests/e2e/` |
-| Load (bonus) | JMeter plan in `tests/load/` |
 | Quality | PHP-CS-Fixer (PSR-12), PHPStan level 6, ESLint + Prettier for TS |
 | CI | GitHub Actions |
 
@@ -83,7 +82,6 @@ tests/Functional/  Codeception functional tests (in-process, Yii2 module)
 tests/Smoke/       Codeception smoke tests (PhpBrowser, real HTTP to the test stand)
 tests/e2e/         Playwright: specs/ui/, specs/e2e/, pages/ (Page Objects), fixtures/
 tests/TEST_CHECKLIST.md  All test cases with IDs; each test names its ID
-tests/load/        JMeter .jmx + README
 docker/            Dockerfiles and configs per service
 .github/workflows/ CI pipelines
 ```
@@ -161,7 +159,6 @@ docker/            Dockerfiles and configs per service
 | ui | One page in a real browser: states, a11y (axe), screenshots, mobile widths | PR to `main` | < 5 min |
 | e2e | Full flow in a real browser incl. realtime, two contexts | PR to `main`, nightly | < 10 min, sharded |
 | regression | All suites filtered by `regression` + bug tests | nightly, before release | — |
-| load (bonus) | Throughput of POST comment, WS connections | manual / weekly | — |
 
 ### Traceability (keep in sync with README)
 
@@ -190,7 +187,7 @@ Full branching rules: **`CONTRIBUTING.md`** (source of truth; summary in README)
   no direct commits to `main` by convention. Protection is the owner's decision (see "Work plan").
 - **One feature = one branch** `feature/<feature-name>`, containing **production code only**.
 - **Each test level = its own branch** `test/<level>-<feature-name>`,
-  level ∈ `unit | functional | smoke | ui | e2e | regression | load`.
+  level ∈ `unit | functional | smoke | ui | e2e | regression`.
   A feature is done only when the feature branch and all its test-level branches are merged.
 - Other types: `fix/`, `chore/`, `docs/`, `ci/`. Names are kebab-case (`[a-z0-9-]`), named after the feature.
 - Branch from a fresh `main`; keep branches short-lived (one branch = one PR);
@@ -223,7 +220,7 @@ Before changing any file, run `git branch --show-current`.
 ## Work plan
 
 **Status (2026-11-25):** phase 1 and phase 2 are done and merged; CI runs on every PR and
-nightly. Left: load test (bonus).
+nightly.
 
 **Phase 1 — app (done).** Feature branches in this order, each merged before the next starts:
 
@@ -241,7 +238,7 @@ nightly. Left: load test (bonus).
 each based on the previous one: `chore/test-infra` (test stand, Playwright, Makefile, README) →
 `test/unit-comments` → `test/functional-comments` → `test/smoke-comments` → `test/ui-comments` →
 `test/e2e-comments` → `test/regression-comments`; then one `fix/<bug>` branch per bug the
-tests found, `ci/github-actions`, load (bonus). Branches are pushed; the owner merges.
+tests found, `ci/github-actions`. Branches are pushed; the owner merges.
 
 **After phase 2 — reminder.** When the last phase-2 branch is merged, **remind the owner**
 that `main` is still unprotected and ask whether to enable branch protection on GitHub
