@@ -64,6 +64,21 @@ $comments = $dataProvider->getModels();
                 ]) ?>
 
                 <?php ActiveForm::end() ?>
+                <?php
+                // yiiActiveForm fires "beforeSubmit" once the form is valid and about to be sent:
+                // disabling the button there stops a double click from sending the comment twice.
+                // "pageshow" turns it back on when the browser restores the page from its cache (Back).
+                $this->registerJs(<<<'JS'
+                    const commentForm = $('#comment-form');
+                    commentForm.on('beforeSubmit', function () {
+                        $(this).find('[data-testid="comment-form-submit"]').prop('disabled', true);
+                        return true;
+                    });
+                    window.addEventListener('pageshow', function () {
+                        commentForm.find('[data-testid="comment-form-submit"]').prop('disabled', false);
+                    });
+                    JS);
+                ?>
             </div>
         </section>
 
