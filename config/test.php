@@ -24,10 +24,8 @@ return [
             \app\services\CommentService::class => [
                 '__construct()' => [$params['commentRateLimitPerMinute']],
             ],
-            \app\services\RealtimePublisherInterface::class => [
-                'class' => \app\services\RealtimePublisher::class,
-                '__construct()' => [$params['centrifugo']['apiUrl'], $params['centrifugo']['apiKey']],
-            ],
+            // Functional tests must not send events to a real Centrifugo; the fake records them instead
+            \app\services\RealtimePublisherInterface::class => \app\tests\Support\RecordingPublisher::class,
             \app\services\CentrifugoTokenIssuer::class => [
                 '__construct()' => [$params['centrifugo']['tokenSecret'], $params['centrifugo']['tokenTtl']],
             ],
@@ -53,13 +51,7 @@ return [
         ],
         'request' => [
             'cookieValidationKey' => 'test',
-            'enableCsrfValidation' => false,
-            // but if you absolutely need it set cookie domain to localhost
-            /*
-            'csrfCookie' => [
-                'domain' => 'localhost',
-            ],
-            */
+            // CSRF validation stays on (Yii default), so tests check the real form protection
         ],
     ],
     'modules' => [

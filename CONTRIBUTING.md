@@ -15,8 +15,9 @@ Every change, however small, lives in its own branch and reaches `main` through 
   | Level | Branch | Suite |
   |---|---|---|
   | unit | `test/unit-<feature>` | `make test-unit` |
-  | smoke | `test/smoke-<feature>` | `make test-smoke` |
   | functional | `test/functional-<feature>` | `make test-func` |
+  | smoke | `test/smoke-<feature>` | `make test-smoke` |
+  | ui | `test/ui-<feature>` | `make test-ui` |
   | e2e | `test/e2e-<feature>` | `make test-e2e` |
   | regression | `test/regression-<feature>` | `make test-regress` |
   | load | `test/load-<feature>` | JMeter, `tests/load/` |
@@ -24,8 +25,10 @@ Every change, however small, lives in its own branch and reaches `main` through 
   Skip a level only if it has nothing to cover for that feature (say why in the PR).
 - A feature is **done** only when its feature branch and all its test-level branches are merged.
 - **Order: app first, tests second.** Phase 1: all feature branches, one after another.
-  Phase 2: the test-level branches for every feature (unit → smoke → functional → e2e),
-  then CI, regression and load. The phase plan is in `CLAUDE.md` ("Work plan").
+  Phase 2: tests for the whole app, one branch per suite (`test/unit-comments`,
+  `test/functional-comments`, `test/smoke-comments`, `test/ui-comments`, `test/e2e-comments`,
+  `test/regression-comments`), then a `fix/` branch per bug the tests found, CI and load.
+  The phase plan is in `CLAUDE.md` ("Work plan").
 - **Known trade-off:** until phase 2 is done, `main` holds code that is not covered by tests
   yet. This is a deliberate choice: the whole flow exists before tests are designed, and every
   PR stays small and reviews one thing. Start phase 2 right after phase 1.
