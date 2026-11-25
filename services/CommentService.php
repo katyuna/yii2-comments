@@ -9,12 +9,13 @@ use app\models\CommentForm;
 use yii\data\ActiveDataProvider;
 
 /**
- * Business logic for comments: creating them from the guest form and listing the feed.
+ * Business logic for comments: creating them from the guest form, listing, editing and deleting.
  */
 class CommentService
 {
     private const RATE_LIMIT_WINDOW_SECONDS = 60;
     private const FEED_PAGE_SIZE = 20;
+    private const ADMIN_PAGE_SIZE = 50;
 
     /**
      * @param int $rateLimitPerMinute Max comments one IP may post per minute
@@ -65,9 +66,66 @@ class CommentService
      */
     public function feedDataProvider(): ActiveDataProvider
     {
+        return $this->newestFirst(self::FEED_PAGE_SIZE);
+    }
+
+    /**
+     * Data provider for the admin list: newest comments first, paginated.
+     *
+     * @return ActiveDataProvider
+     */
+    public function adminDataProvider(): ActiveDataProvider
+    {
+        return $this->newestFirst(self::ADMIN_PAGE_SIZE);
+    }
+
+    /**
+     * Finds a comment by ID.
+     *
+     * @param int $id Comment ID
+     * @return Comment|null
+     */
+    public function findById(int $id): ?Comment
+    {
+        return Comment::findOne(['id' => $id]);
+    }
+
+    /**
+     * Updates a comment from the admin edit form.
+     *
+     * Validation errors stay in the model.
+     *
+     * @param Comment $comment Comment to update
+     * @param array<string, mixed> $data POST data of the edit form
+     * @return bool Whether the comment was loaded and saved
+     */
+    public function update(Comment $comment, array $data): bool
+    {
+        return $comment->load($data) && $comment->save();
+    }
+
+    /**
+     * Deletes a comment.
+     *
+     * @param Comment $comment Comment to delete
+     * @return void
+     */
+    public function delete(Comment $comment): void
+    {
+        $comment->delete();
+    }
+
+    /**
+     * Builds a paginated query of comments, newest first.
+     *
+     * @param int $pageSize Comments per page
+     * @return ActiveDataProvider
+     */
+    private function newestFirst(int $pageSize): ActiveDataProvider
+    {
         return new ActiveDataProvider([
             'query' => Comment::find()->orderBy(['created_at' => SORT_DESC, 'id' => SORT_DESC]),
-            'pagination' => ['pageSize' => self::FEED_PAGE_SIZE],
+            'pagination' => ['pageSize' => $pageSize],
             'sort' => false,
         ]);
     }

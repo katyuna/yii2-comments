@@ -16,7 +16,7 @@ $items = [
     ],
     [
         'label' => 'Admin',
-        'url' => ['/admin/default/index'],
+        'url' => ['/admin/comment/index'],
         'linkOptions' => ['data-testid' => 'nav-admin'],
     ],
     [
