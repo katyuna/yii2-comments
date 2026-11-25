@@ -69,7 +69,7 @@ test-func:     ## Functional tests: HTTP requests handled in-process by Yii
 	$(PHP) vendor/bin/codecept run Functional
 
 test-smoke: test-up  ## Smoke tests: real HTTP against the running test stand
-	$(PHP) vendor/bin/codecept run Smoke
+	$(PHP) vendor/bin/codecept run Smoke -g smoke
 
 test-ui: test-up e2e-deps  ## UI tests in Chromium (Playwright); extra options: ARGS="--update-snapshots"
 	$(PW) npx playwright test --project=ui $(ARGS)

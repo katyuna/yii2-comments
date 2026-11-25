@@ -334,12 +334,12 @@ Full rules: **[CONTRIBUTING.md](CONTRIBUTING.md)**.
 |---|---|---|
 | 1 | Guest fills in the form | smoke `AppIsAliveCest`; UI `comment-form.spec.ts`; e2e `comment-flow.spec.ts` |
 | 2 | Validation and anti-spam (CSRF, honeypot, rate limit) | unit `CommentFormTest`, `CommentServiceTest` (rate limit); functional `GuestCommentCest` (CSRF, honeypot, rate limit); UI `comment-form.spec.ts` (errors, honeypot); e2e `comment-flow.spec.ts` (E-06) |
-| 3 | Comment saved to MySQL | unit `CommentServiceTest`; functional `GuestCommentCest`; smoke `AppIsAliveCest` (migrations); e2e `comment-flow.spec.ts` |
-| 4 | Comment shown in the public feed (encoded) | unit `CommentServiceTest` (order); functional `GuestCommentCest` (escaping, order, pager); UI `feed.spec.ts`; e2e `comment-flow.spec.ts` |
+| 3 | Comment saved to MySQL | unit `CommentServiceTest`; functional `GuestCommentCest`; smoke `AppIsAliveCest` (migrations); e2e `comment-flow.spec.ts`; regression `PublisherFailureLogTest`, `RegressionCest` (utf8mb4) |
+| 4 | Comment shown in the public feed (encoded) | unit `CommentServiceTest` (order); functional `GuestCommentCest` (escaping, order, pager); UI `feed.spec.ts`; e2e `comment-flow.spec.ts`; regression `RegressionCest` (utf8mb4) |
 | 5 | Event published to Centrifugo (HTTP API) | unit `CommentServiceTest` (mock publisher); smoke `AppIsAliveCest` (Centrifugo API); e2e `realtime.spec.ts` |
-| 6 | Admin logs in / guest is denied | unit `UserTest`, `LoginFormTest`; functional `AdminAccessCest`; smoke `AppIsAliveCest` (admin from .env); UI `admin.spec.ts` (login form); e2e `comment-flow.spec.ts` |
+| 6 | Admin logs in / guest is denied | unit `UserTest`, `LoginFormTest`; functional `AdminAccessCest`; smoke `AppIsAliveCest` (admin from .env); UI `admin.spec.ts` (login form); e2e `comment-flow.spec.ts`; regression `RegressionCest` (login page, php-fpm env) |
 | 7 | Admin list subscribes to the channel (badge Live) | unit `CentrifugoTokenIssuerTest`; functional `AdminAccessCest` (token endpoint); smoke `AppIsAliveCest` (WebSocket via nginx); UI `admin.spec.ts` (Live badge, reconnect); e2e `realtime.spec.ts` (Live, reconnect, logout) |
-| 8 | New comment appears in the admin list without reload | functional `AdminCrudCest` (escaping in admin list); UI `admin.spec.ts` (live row = reloaded row); e2e `comment-flow.spec.ts`, `realtime.spec.ts` (XSS) |
+| 8 | New comment appears in the admin list without reload | functional `AdminCrudCest` (escaping in admin list); UI `admin.spec.ts` (live row = reloaded row); e2e `comment-flow.spec.ts`, `realtime.spec.ts` (XSS); regression `regression.spec.ts` (unicode live row) |
 | 9 | Admin edits / deletes a comment | functional `AdminCrudCest`, `AdminAccessCest` (guest denied); UI `admin.spec.ts` (confirm, edit); e2e `comment-flow.spec.ts` |
 
 Steps match `@flowStep N` in tests and the "Шаг" column of `tests/TEST_CHECKLIST.md`.
