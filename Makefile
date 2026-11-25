@@ -74,8 +74,11 @@ test-smoke: test-up  ## Smoke tests: real HTTP against the running test stand
 test-ui: test-up e2e-deps  ## UI tests in Chromium (Playwright); extra options: ARGS="--update-snapshots"
 	$(PW) npx playwright test --project=ui $(ARGS)
 
+# CI runs one browser per job: make test-e2e E2E_PROJECTS=--project=e2e-firefox ARGS=--shard=1/2
+E2E_PROJECTS ?= --project=e2e-chromium --project=e2e-firefox --project=e2e-webkit
+
 test-e2e: test-up e2e-deps  ## E2E flows: Chromium, plus @cross-browser in Firefox and WebKit
-	$(PW) npx playwright test --project=e2e-chromium --project=e2e-firefox --project=e2e-webkit $(ARGS)
+	$(PW) npx playwright test $(E2E_PROJECTS) $(ARGS)
 
 test-regress: test-up e2e-deps  ## Everything tagged regression, in all suites
 	$(PHP) vendor/bin/codecept run -g regression

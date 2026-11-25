@@ -1,0 +1,134 @@
+# Checks for every pull request.
+#
+#   every PR:        lint, unit and functional run in parallel (fast feedback, < 2 min each)
+#   PR to main:      smoke is the gate; only when it passes, UI and E2E start.
+#                    E2E is a matrix: 3 browsers x 2 shards, each job with its own test stand.
+#
+# Every job starts its own Docker stand with the same make targets as on a laptop
+# (see Makefile), so "works on my machine" and "works in CI" are the same commands.
+name: CI
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+# A new push to the same PR cancels the old run: only the latest commit matters
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Playwright: forbidOnly (a forgotten test.only fails the run)
+  CI: "true"
+
+jobs:
+  lint:
+    name: Lint (PHP-CS-Fixer, PHPStan, ESLint/Prettier/tsc)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/stand
+      - run: make lint
+
+  unit:
+    name: Unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/stand
+      - run: make test-unit
+      - name: Keep Codeception output of failed tests
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-output
+          path: tests/Support/output/
+          retention-days: 14
+
+  functional:
+    name: Functional
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/stand
+      - run: make test-func
+      - name: Keep Codeception output of failed tests
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: functional-output
+          path: tests/Support/output/
+          retention-days: 14
+
+  # The gate: if the stand is not alive (pages, login, WebSocket), browser tests would
+  # only fail slowly and noisily, so they do not start.
+  smoke:
+    name: Smoke (gate)
+    if: github.base_ref == 'main' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/stand
+      - run: make test-smoke
+      - name: Keep Codeception output of failed tests
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-output
+          path: tests/Support/output/
+          retention-days: 14
+
+  ui:
+    name: UI (Chromium)
+    needs: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/stand
+      - run: make test-ui
+      - name: Keep Playwright trace, screenshots and video
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-playwright
+          path: |
+            tests/e2e/test-results/
+            tests/e2e/playwright-report/
+          retention-days: 14
+
+  e2e:
+    name: E2E ${{ matrix.browser }} ${{ matrix.shard }}/2
+    needs: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      # One red browser must not hide the result of the others
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+        shard: [1, 2]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/stand
+      # Firefox and WebKit run only @cross-browser tests, so a shard may get none
+      - run: >
+          make test-e2e
+          E2E_PROJECTS=--project=e2e-${{ matrix.browser }}
+          ARGS="--shard=${{ matrix.shard }}/2 --pass-with-no-tests"
+      - name: Keep Playwright trace, screenshots and video
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-${{ matrix.browser }}-${{ matrix.shard }}
+          path: |
+            tests/e2e/test-results/
+            tests/e2e/playwright-report/
+          retention-days: 14
