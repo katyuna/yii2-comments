@@ -64,6 +64,28 @@ $comments = $dataProvider->getModels();
                 ]) ?>
 
                 <?php ActiveForm::end() ?>
+                <?php
+                // Stops a double click from sending the comment twice: the button is disabled on the
+                // first "submit" event. yiiActiveForm sends the form ~200 ms later (after client
+                // validation), so waiting for its "beforeSubmit" would let a second click through.
+                // "afterValidate" turns the button back on if the form has errors, "pageshow" when the
+                // browser restores the page from its cache (Back button).
+                $this->registerJs(<<<'JS'
+                    const commentForm = $('#comment-form');
+                    const commentSubmit = commentForm.find('[data-testid="comment-form-submit"]');
+                    commentForm.on('submit', function () {
+                        commentSubmit.prop('disabled', true);
+                    });
+                    commentForm.on('afterValidate', function (event, messages, errorAttributes) {
+                        if (errorAttributes.length > 0) {
+                            commentSubmit.prop('disabled', false);
+                        }
+                    });
+                    window.addEventListener('pageshow', function () {
+                        commentSubmit.prop('disabled', false);
+                    });
+                    JS);
+                ?>
             </div>
         </section>
 
