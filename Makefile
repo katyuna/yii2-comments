@@ -71,11 +71,11 @@ test-func:     ## Functional tests: HTTP requests handled in-process by Yii
 test-smoke: test-up  ## Smoke tests: real HTTP against the running test stand
 	$(PHP) vendor/bin/codecept run Smoke
 
-test-ui: test-up e2e-deps  ## UI tests in Chromium (Playwright)
-	$(PW) npx playwright test --project=ui
+test-ui: test-up e2e-deps  ## UI tests in Chromium (Playwright); extra options: ARGS="--update-snapshots"
+	$(PW) npx playwright test --project=ui $(ARGS)
 
 test-e2e: test-up e2e-deps  ## E2E flows: Chromium, plus @cross-browser in Firefox and WebKit
-	$(PW) npx playwright test --project=e2e-chromium --project=e2e-firefox --project=e2e-webkit
+	$(PW) npx playwright test --project=e2e-chromium --project=e2e-firefox --project=e2e-webkit $(ARGS)
 
 test-regress: test-up e2e-deps  ## Everything tagged regression, in all suites
 	$(PHP) vendor/bin/codecept run -g regression

@@ -227,7 +227,9 @@ A second copy of the app that only tests use, so tests never touch your data:
 - **Arrange – Act – Assert**, one behaviour per test, a name that says what is expected.
 - **Independent tests**: each one creates its own data. Codeception rolls back the DB transaction,
   Playwright empties the comment table before every test. Tests can run in any order.
-- **Selectors**: only `data-testid` attributes (`getByTestId`), never CSS classes or XPath.
+- **Selectors**: `data-testid` attributes (`getByTestId`), never CSS classes or XPath. Role and label
+  locators (`getByRole`, accessible names) only where the test checks what a screen reader gets, or for
+  elements Bootstrap renders without a test id (menu button, pager items).
 - **Page Objects** (`tests/e2e/pages/`): one class per page hides selectors and actions,
   so a markup change is fixed in one place.
 - **No fixed waits** (`sleep`, `waitForTimeout`): Playwright waits for the expected state itself.
@@ -237,6 +239,8 @@ A second copy of the app that only tests use, so tests never touch your data:
 - **Artifacts of failed tests**: Codeception — `tests/Support/output/`; Playwright — trace,
   screenshot and video in `tests/e2e/test-results/`, HTML report in `tests/e2e/playwright-report/`.
   Open a trace with `npx playwright show-trace <file>` or at <https://trace.playwright.dev>.
+- **Screenshots** (UI-18) are approved images in `tests/e2e/specs/ui/__screenshots__/`. After an intended
+  design change: `make test-ui ARGS="--update-snapshots"`, then review the new images in the PR.
 
 ## Тестирование (по-русски)
 
@@ -287,7 +291,9 @@ Smoke, UI и E2E сначала поднимают **тестовый стенд
 - **Подготовка – действие – проверка** (Arrange – Act – Assert), одно поведение на тест, название говорит, что ожидается.
 - **Тесты независимы**: каждый создаёт свои данные. Codeception откатывает транзакцию БД,
   Playwright очищает таблицу комментариев перед каждым тестом. Порядок запуска не важен.
-- **Селекторы**: только атрибуты `data-testid` (`getByTestId`), никаких CSS-классов и XPath.
+- **Селекторы**: атрибуты `data-testid` (`getByTestId`), никаких CSS-классов и XPath. Поиск по роли и
+  подписи (`getByRole`, доступное имя) — только там, где тест проверяет, что услышит скринридер, или для
+  элементов, которые Bootstrap рисует без test id (кнопка меню, пункты пагинации).
 - **Page Objects** (`tests/e2e/pages/`): по классу на страницу, в нём селекторы и действия.
   Если поменяется вёрстка, исправлять придётся в одном месте.
 - **Никаких фиксированных пауз** (`sleep`, `waitForTimeout`): Playwright сам ждёт нужного состояния.
@@ -297,6 +303,8 @@ Smoke, UI и E2E сначала поднимают **тестовый стенд
 - **Что остаётся от упавших тестов**: Codeception — `tests/Support/output/`; Playwright — трассировка,
   скриншот и видео в `tests/e2e/test-results/`, HTML-отчёт в `tests/e2e/playwright-report/`.
   Трассировку открыть: `npx playwright show-trace <файл>` или на <https://trace.playwright.dev>.
+- **Скриншоты** (UI-18) — утверждённые картинки в `tests/e2e/specs/ui/__screenshots__/`. После намеренного
+  изменения дизайна: `make test-ui ARGS="--update-snapshots"`, затем просмотреть новые картинки в PR.
 
 ## For contributors
 
@@ -324,15 +332,15 @@ Full rules: **[CONTRIBUTING.md](CONTRIBUTING.md)**.
 
 | # | Flow step | Locked by |
 |---|---|---|
-| 1 | Guest fills in the form | smoke `AppIsAliveCest` |
-| 2 | Validation and anti-spam (CSRF, honeypot, rate limit) | unit `CommentFormTest`, `CommentServiceTest` (rate limit); functional `GuestCommentCest` (CSRF, honeypot, rate limit) |
+| 1 | Guest fills in the form | smoke `AppIsAliveCest`; UI `comment-form.spec.ts` |
+| 2 | Validation and anti-spam (CSRF, honeypot, rate limit) | unit `CommentFormTest`, `CommentServiceTest` (rate limit); functional `GuestCommentCest` (CSRF, honeypot, rate limit); UI `comment-form.spec.ts` (errors, honeypot) |
 | 3 | Comment saved to MySQL | unit `CommentServiceTest`; functional `GuestCommentCest`; smoke `AppIsAliveCest` (migrations) |
-| 4 | Comment shown in the public feed (encoded) | unit `CommentServiceTest` (order); functional `GuestCommentCest` (escaping, order, pager) |
+| 4 | Comment shown in the public feed (encoded) | unit `CommentServiceTest` (order); functional `GuestCommentCest` (escaping, order, pager); UI `feed.spec.ts` |
 | 5 | Event published to Centrifugo (HTTP API) | unit `CommentServiceTest` (mock publisher); smoke `AppIsAliveCest` (Centrifugo API) |
-| 6 | Admin logs in / guest is denied | unit `UserTest`, `LoginFormTest`; functional `AdminAccessCest`; smoke `AppIsAliveCest` (admin from .env) |
-| 7 | Admin list subscribes to the channel (badge Live) | unit `CentrifugoTokenIssuerTest`; functional `AdminAccessCest` (token endpoint); smoke `AppIsAliveCest` (WebSocket via nginx) |
-| 8 | New comment appears in the admin list without reload | functional `AdminCrudCest` (escaping in admin list) |
-| 9 | Admin edits / deletes a comment | functional `AdminCrudCest`, `AdminAccessCest` (guest denied) |
+| 6 | Admin logs in / guest is denied | unit `UserTest`, `LoginFormTest`; functional `AdminAccessCest`; smoke `AppIsAliveCest` (admin from .env); UI `admin.spec.ts` (login form) |
+| 7 | Admin list subscribes to the channel (badge Live) | unit `CentrifugoTokenIssuerTest`; functional `AdminAccessCest` (token endpoint); smoke `AppIsAliveCest` (WebSocket via nginx); UI `admin.spec.ts` (Live badge, reconnect) |
+| 8 | New comment appears in the admin list without reload | functional `AdminCrudCest` (escaping in admin list); UI `admin.spec.ts` (live row = reloaded row) |
+| 9 | Admin edits / deletes a comment | functional `AdminCrudCest`, `AdminAccessCest` (guest denied); UI `admin.spec.ts` (confirm, edit) |
 
 Steps match `@flowStep N` in tests and the "Шаг" column of `tests/TEST_CHECKLIST.md`.
 Each test branch fills in its suite.
