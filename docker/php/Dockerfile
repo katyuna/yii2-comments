@@ -12,4 +12,7 @@ ENV XDEBUG_MODE=off
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+# Let PHP read the .env variables passed by docker compose (see the file for details)
+COPY docker/php/zz-env.conf /usr/local/etc/php-fpm.d/zz-env.conf
+
 WORKDIR /app

@@ -1,7 +1,11 @@
 .env
 /vendor/
-/runtime/
-/web/assets/
+/runtime/*
+!/runtime/.gitignore
+/web/assets/*
+!/web/assets/.gitignore
+/tests/Support/output/*
+!/tests/Support/output/.gitignore
 /tests/_output/
 /tests/e2e/node_modules/
 /tests/e2e/test-results/

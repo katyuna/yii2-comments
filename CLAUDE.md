@@ -46,11 +46,12 @@ PHP, Composer and Node.js are **not** needed on the host.
 make up            # docker compose up -d --build
 make down          # docker compose down
 make sh            # shell into php container
+make setup         # first run after `make up`: composer install + migrations (app + app_test)
 make migrate       # php yii migrate --interactive=0 (app DB)
 make migrate-test  # migrations on app_test DB
-make test-unit     # vendor/bin/codecept run unit
-make test-smoke    # vendor/bin/codecept run functional -g smoke
-make test-func     # vendor/bin/codecept run functional
+make test-unit     # vendor/bin/codecept run Unit
+make test-smoke    # vendor/bin/codecept run Functional -g smoke
+make test-func     # vendor/bin/codecept run Functional
 make test-e2e      # Playwright in its own container
 make test-regress  # all suites, group/tag "regression"
 make lint          # php-cs-fixer (dry-run) + phpstan
@@ -70,8 +71,8 @@ services/          CommentService, RealtimePublisher (Centrifugo HTTP client)
 migrations/        DB schema + admin user seed
 views/             Public views
 web/               Document root (index.php, js/admin-realtime.js)
-tests/unit/        Codeception unit tests
-tests/functional/  Codeception functional tests (smoke = group "smoke")
+tests/Unit/        Codeception unit tests
+tests/Functional/  Codeception functional tests (smoke = group "smoke")
 tests/e2e/         Playwright: specs/, pages/ (Page Objects), fixtures/
 tests/load/        JMeter .jmx + README
 docker/            Dockerfiles and configs per service
@@ -131,7 +132,7 @@ docker/            Dockerfiles and configs per service
   (guest + admin) in one spec.
 - Tags: Codeception `@group smoke|regression`; Playwright `@smoke` / `@regression` in test titles.
 - A test for every fixed bug, tagged `regression`, in branch `test/regression-<bug-name>`.
-- On failure keep artifacts: Codeception `_output/`, Playwright trace + screenshot + video (CI uploads them).
+- On failure keep artifacts: Codeception `tests/Support/output/`, Playwright trace + screenshot + video (CI uploads them).
 
 ### Suites
 
