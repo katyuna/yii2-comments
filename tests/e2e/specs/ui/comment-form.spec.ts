@@ -92,10 +92,15 @@ test.describe('Comment form', () => {
    *
    * The POST is held by the test (page.route) until the button state is checked,
    * so the check does not depend on network speed.
+   * Regression: two POSTs on a double click were fixed in fix/disable-submit-while-sending.
    *
    * @flowStep 3
    */
-  test('UI-05 double click on Post comment sends one comment @ui', async ({ page, feedPage, db }) => {
+  test('UI-05 double click on Post comment sends one comment @ui @regression', async ({
+    page,
+    feedPage,
+    db,
+  }) => {
     const text = uniqueText('UI-05');
     let postRequests = 0;
     let releasePost: () => void = () => undefined;

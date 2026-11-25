@@ -14,7 +14,15 @@ test.describe('Comment flow', () => {
    * the guest sees it in the feed, the admin gets the row without a reload, edits it,
    * and deletes it; the guest's feed follows each change.
    *
-   * @flowStep 1-9
+   * @flowStep 1
+   * @flowStep 2
+   * @flowStep 3
+   * @flowStep 4
+   * @flowStep 5
+   * @flowStep 6
+   * @flowStep 7
+   * @flowStep 8
+   * @flowStep 9
    */
   test('E-01 comment goes from the guest form to admin moderation @e2e @cross-browser', async ({
     guest,

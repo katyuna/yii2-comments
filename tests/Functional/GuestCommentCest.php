@@ -128,7 +128,9 @@ final class GuestCommentCest
      * F-04: a filled honeypot field saves nothing, and the answer does not tell the bot why.
      *
      * If the page names the hidden field, a bot can learn to leave it empty.
+     * Regression: the bug was fixed in fix/honeypot-silent-reject.
      *
+     * @group regression
      * @flowStep 2
      * @param FunctionalTester $I Actor
      * @return void
