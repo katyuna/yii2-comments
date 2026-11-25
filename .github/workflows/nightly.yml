@@ -1,0 +1,36 @@
+# Nightly regression: every test tagged regression in all suites
+# (Codeception @group regression + Playwright @regression in all browsers),
+# on the current main. Also runs on demand (Actions -> Nightly regression -> Run workflow).
+name: Nightly regression
+
+on:
+  schedule:
+    # 02:00 UTC every day
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CI: "true"
+
+jobs:
+  regression:
+    name: Regression (all suites)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/stand
+      - run: make test-regress
+      - name: Keep Codeception output and Playwright trace, screenshots, video
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-artifacts
+          path: |
+            tests/Support/output/
+            tests/e2e/test-results/
+            tests/e2e/playwright-report/
+          retention-days: 14

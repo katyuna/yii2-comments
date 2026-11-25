@@ -197,6 +197,36 @@ The full list of test cases with IDs (U-01, F-03, UI-17 …) and priorities is i
 `make test` runs all suites. Unit and functional tests run inside the `php` container.
 Smoke, UI and E2E tests start the **test stand** first (`make test-up`, stop it with `make test-down`).
 
+### When the tests run (CI)
+
+GitHub Actions, `.github/workflows/`. Every job starts its own Docker stand with the same
+`make` targets as on a laptop.
+
+| When | What | Workflow |
+|---|---|---|
+| Every pull request | lint, unit and functional, in parallel | `ci.yml` |
+| Pull request to `main` | smoke first (the gate); when it passes, UI and E2E. E2E is a matrix: Chromium, Firefox, WebKit × 2 shards (`--shard=1/2`), 6 jobs, each with its own stand | `ci.yml` |
+| Every night, 02:00 UTC (and on demand) | regression: everything tagged `regression` in all suites | `nightly.yml` |
+
+A failed job uploads its artifacts (Actions → the run → Artifacts): Playwright trace, screenshot,
+video and HTML report, Codeception `tests/Support/output/`.
+
+**To scale**: more E2E shards (raise the shard count in `ci.yml`); every shard gets its own stand,
+so tests in different shards never share a DB.
+
+Time of a full local run on a clean clone (Docker Desktop, Windows 11, 2026-11-25):
+
+| Step | Time |
+|---|---|
+| `make start` (build images, composer, migrations) | 255 s |
+| `make lint` (incl. first `npm ci`) | 224 s |
+| unit | 25 s |
+| functional | 32 s |
+| smoke (incl. starting the test stand) | 28 s |
+| UI — 32 tests | 158 s |
+| E2E — 14 tests, 3 browsers | 235 s |
+| regression — 9 Codeception + 3 Playwright | 142 s |
+
 ### Test stand
 
 A second copy of the app that only tests use, so tests never touch your data:
@@ -293,6 +323,36 @@ then open `tests/Support/output/report.html`.
 
 `make test` запускает все сьюты. Unit и functional работают внутри контейнера `php`.
 Smoke, UI и E2E сначала поднимают **тестовый стенд** (`make test-up`, остановить — `make test-down`).
+
+### Когда запускаются тесты (CI)
+
+GitHub Actions, `.github/workflows/`. Каждая задача поднимает свой Docker-стенд теми же
+командами `make`, что и на ноутбуке.
+
+| Когда | Что | Файл |
+|---|---|---|
+| Каждый pull request | lint, unit и functional, параллельно | `ci.yml` |
+| Pull request в `main` | сначала smoke («ворота»); если прошёл — UI и E2E. E2E — матрица: Chromium, Firefox, WebKit × 2 части (`--shard=1/2`), 6 задач, у каждой свой стенд | `ci.yml` |
+| Каждую ночь в 02:00 UTC (и вручную) | регрессия: всё с тегом `regression` во всех сьютах | `nightly.yml` |
+
+Упавшая задача сохраняет артефакты (Actions → запуск → Artifacts): trace, скриншот, видео
+и HTML-отчёт Playwright, папку Codeception `tests/Support/output/`.
+
+**Как масштабировать**: больше частей E2E (увеличить число shard в `ci.yml`); у каждой части свой
+стенд, поэтому тесты разных частей не делят одну БД.
+
+Время полного прогона на чистом клоне (Docker Desktop, Windows 11, 2026-11-25):
+
+| Шаг | Время |
+|---|---|
+| `make start` (сборка образов, composer, миграции) | 255 с |
+| `make lint` (с первым `npm ci`) | 224 с |
+| unit | 25 с |
+| functional | 32 с |
+| smoke (с запуском тестового стенда) | 28 с |
+| UI — 32 теста | 158 с |
+| E2E — 14 тестов, 3 браузера | 235 с |
+| regression — 9 Codeception + 3 Playwright | 142 с |
 
 ### Тестовый стенд
 
