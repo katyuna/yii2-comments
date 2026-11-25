@@ -79,8 +79,9 @@ class SiteController extends Controller
             if ($comment !== null) {
                 Yii::$app->session->setFlash('success', 'Thank you! Your comment has been published.');
 
-                // Redirect after POST, so a page refresh does not post the comment twice
-                return $this->redirect(['index']);
+                // Redirect after POST, so a page refresh does not post the comment twice.
+                // goHome() returns the guest to "/", the address they posted from (not /site/index).
+                return $this->goHome();
             }
         }
 
