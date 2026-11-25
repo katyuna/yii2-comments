@@ -325,14 +325,14 @@ Full rules: **[CONTRIBUTING.md](CONTRIBUTING.md)**.
 | # | Flow step | Locked by |
 |---|---|---|
 | 1 | Guest fills in the form | — |
-| 2 | Validation and anti-spam (CSRF, honeypot, rate limit) | unit `CommentFormTest`, `CommentServiceTest` (rate limit) |
-| 3 | Comment saved to MySQL | unit `CommentServiceTest` |
-| 4 | Comment shown in the public feed (encoded) | unit `CommentServiceTest` (order) |
+| 2 | Validation and anti-spam (CSRF, honeypot, rate limit) | unit `CommentFormTest`, `CommentServiceTest` (rate limit); functional `GuestCommentCest` (CSRF, honeypot, rate limit) |
+| 3 | Comment saved to MySQL | unit `CommentServiceTest`; functional `GuestCommentCest` |
+| 4 | Comment shown in the public feed (encoded) | unit `CommentServiceTest` (order); functional `GuestCommentCest` (escaping, order, pager) |
 | 5 | Event published to Centrifugo (HTTP API) | unit `CommentServiceTest` (mock publisher) |
-| 6 | Admin logs in / guest is denied | unit `UserTest`, `LoginFormTest` |
-| 7 | Admin list subscribes to the channel (badge Live) | unit `CentrifugoTokenIssuerTest` |
-| 8 | New comment appears in the admin list without reload | — |
-| 9 | Admin edits / deletes a comment | — |
+| 6 | Admin logs in / guest is denied | unit `UserTest`, `LoginFormTest`; functional `AdminAccessCest` |
+| 7 | Admin list subscribes to the channel (badge Live) | unit `CentrifugoTokenIssuerTest`; functional `AdminAccessCest` (token endpoint) |
+| 8 | New comment appears in the admin list without reload | functional `AdminCrudCest` (escaping in admin list) |
+| 9 | Admin edits / deletes a comment | functional `AdminCrudCest`, `AdminAccessCest` (guest denied) |
 
 Steps match `@flowStep N` in tests and the "Шаг" column of `tests/TEST_CHECKLIST.md`.
 Each test branch fills in its suite.
