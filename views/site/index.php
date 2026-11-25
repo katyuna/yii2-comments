@@ -65,17 +65,24 @@ $comments = $dataProvider->getModels();
 
                 <?php ActiveForm::end() ?>
                 <?php
-                // yiiActiveForm fires "beforeSubmit" once the form is valid and about to be sent:
-                // disabling the button there stops a double click from sending the comment twice.
-                // "pageshow" turns it back on when the browser restores the page from its cache (Back).
+                // Stops a double click from sending the comment twice: the button is disabled on the
+                // first "submit" event. yiiActiveForm sends the form ~200 ms later (after client
+                // validation), so waiting for its "beforeSubmit" would let a second click through.
+                // "afterValidate" turns the button back on if the form has errors, "pageshow" when the
+                // browser restores the page from its cache (Back button).
                 $this->registerJs(<<<'JS'
                     const commentForm = $('#comment-form');
-                    commentForm.on('beforeSubmit', function () {
-                        $(this).find('[data-testid="comment-form-submit"]').prop('disabled', true);
-                        return true;
+                    const commentSubmit = commentForm.find('[data-testid="comment-form-submit"]');
+                    commentForm.on('submit', function () {
+                        commentSubmit.prop('disabled', true);
+                    });
+                    commentForm.on('afterValidate', function (event, messages, errorAttributes) {
+                        if (errorAttributes.length > 0) {
+                            commentSubmit.prop('disabled', false);
+                        }
                     });
                     window.addEventListener('pageshow', function () {
-                        commentForm.find('[data-testid="comment-form-submit"]').prop('disabled', false);
+                        commentSubmit.prop('disabled', false);
                     });
                     JS);
                 ?>
