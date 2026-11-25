@@ -19,7 +19,7 @@ export default tseslint.config(
       'playwright/prefer-web-first-assertions': 'error',
       'playwright/no-force-option': 'error',
       // Specs assert through Page Object helpers (expect* methods) as well as expect()
-      'playwright/expect-expect': ['error', { assertFunctionNames: ['expect*'] }],
+      'playwright/expect-expect': ['error', { assertFunctionPatterns: ['^expect'] }],
     },
   },
 );
