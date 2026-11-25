@@ -2,7 +2,7 @@ DC = docker compose
 # -T: no TTY, so the targets also work in CI and scripts
 PHP = $(DC) exec -T php
 
-.PHONY: hooks up down sh setup install migrate migrate-test test-unit test-smoke test-func test-e2e test-regress test lint fix
+.PHONY: hooks up down sh setup install migrate migrate-test admin-sync test-unit test-smoke test-func test-e2e test-regress test lint fix
 
 hooks:         ## Once after cloning: enable branching reminder git hooks
 	git config core.hooksPath .githooks
@@ -27,6 +27,9 @@ migrate:       ## Apply DB migrations to the app DB
 
 migrate-test:  ## Apply DB migrations to the app_test DB
 	$(PHP) php tests/Support/bin/yii migrate --interactive=0
+
+admin-sync:    ## Create the admin or update its password from ADMIN_USERNAME / ADMIN_PASSWORD
+	$(PHP) php yii admin-user/sync
 
 test-unit:
 	$(PHP) vendor/bin/codecept run Unit

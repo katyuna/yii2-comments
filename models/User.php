@@ -4,95 +4,139 @@ declare(strict_types=1);
 
 namespace app\models;
 
-use yii\base\BaseObject;
+use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 
-class User extends BaseObject implements IdentityInterface
+/**
+ * Admin account. Implements IdentityInterface, so Yii::$app->user can log it in.
+ *
+ * @property int $id
+ * @property string $username
+ * @property string $password_hash
+ * @property string $auth_key
+ * @property int $created_at
+ * @property int $updated_at
+ */
+class User extends ActiveRecord implements IdentityInterface
 {
-    public int|string $id = '';
-    public string $username = '';
-    public string $passwordHash = '';
-    public string $authKey = '';
-    public string $accessToken = '';
-    /** @var array<int|string, array<string, string>> */
-    private static array $_users = [
-        '100' => [
-            'id' => '100',
-            'username' => 'admin',
-            // password: admin
-            'passwordHash' => '$2y$13$gYAywKSkhfZDq9FLNdm7buKnvlRxDexf5xipSMAxQPDUxpaptmZJu',
-            'authKey' => 'test100key',
-            'accessToken' => '100-token',
-        ],
-        '101' => [
-            'id' => '101',
-            'username' => 'demo',
-            // password: demo
-            'passwordHash' => '$2y$13$alRLq1PGVMlGYwS/Y3iy3ewQns1Z8ol8Iq6Zb5k7ZwEhblA1aL29y',
-            'authKey' => 'test101key',
-            'accessToken' => '101-token',
-        ],
-    ];
     /**
-     * {@inheritdoc}
-     */
-    public static function findIdentity($id): static|null
-    {
-        return isset(self::$_users[$id]) ? new static(self::$_users[$id]) : null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function findIdentityByAccessToken($token, $type = null): static|null
-    {
-        foreach (self::$_users as $user) {
-            if ($user['accessToken'] === $token) {
-                return new static($user);
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Finds user by username
+     * Returns the DB table name.
      *
-     * @param string $username
-     * @return static|null
+     * @return string
      */
-    public static function findByUsername(string $username): static|null
+    public static function tableName(): string
     {
-        foreach (self::$_users as $user) {
-            if (strcasecmp($user['username'], $username) === 0) {
-                return new static($user);
-            }
-        }
+        return '{{%user}}';
+    }
 
+    /**
+     * Fills created_at / updated_at automatically on save.
+     *
+     * @return array<int|string, mixed>
+     */
+    public function behaviors(): array
+    {
+        return [
+            TimestampBehavior::class,
+        ];
+    }
+
+    /**
+     * Finds a user by ID (used to restore the login from the session).
+     *
+     * @param int|string $id User ID
+     * @return self|null
+     */
+    public static function findIdentity($id): ?self
+    {
+        return static::findOne(['id' => $id]);
+    }
+
+    /**
+     * API tokens are not used in this app.
+     *
+     * @param mixed $token Access token
+     * @param mixed $type Token type
+     * @return self|null Always null
+     */
+    public static function findIdentityByAccessToken($token, $type = null): ?self
+    {
         return null;
     }
 
     /**
-     * {@inheritdoc}
+     * Finds a user by username.
+     *
+     * @param string $username Username
+     * @return self|null
      */
-    public function getId(): int|string
+    public static function findByUsername(string $username): ?self
+    {
+        return static::findOne(['username' => $username]);
+    }
+
+    /**
+     * Returns the user ID.
+     *
+     * @return int
+     */
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * {@inheritdoc}
+     * Returns the key that protects the "remember me" cookie.
+     *
+     * @return string
      */
-    public function getAuthKey(): string|null
+    public function getAuthKey(): string
     {
-        return $this->authKey;
+        return $this->auth_key;
     }
 
     /**
-     * {@inheritdoc}
+     * Checks the key from the "remember me" cookie.
+     *
+     * @param mixed $authKey Key from the cookie
+     * @return bool
      */
     public function validateAuthKey($authKey): bool
     {
-        return $this->authKey === $authKey;
+        return is_string($authKey) && hash_equals($this->auth_key, $authKey);
+    }
+
+    /**
+     * Checks a password against the stored hash.
+     *
+     * @param string $password Plain password from the login form
+     * @return bool
+     */
+    public function validatePassword(string $password): bool
+    {
+        return Yii::$app->security->validatePassword($password, $this->password_hash);
+    }
+
+    /**
+     * Stores the hash of a new password.
+     *
+     * @param string $password Plain password
+     * @return void
+     */
+    public function setPassword(string $password): void
+    {
+        $this->password_hash = Yii::$app->security->generatePasswordHash($password);
+    }
+
+    /**
+     * Generates a new "remember me" key; this also logs the user out of other devices.
+     *
+     * @return void
+     */
+    public function generateAuthKey(): void
+    {
+        $this->auth_key = Yii::$app->security->generateRandomString(32);
     }
 }

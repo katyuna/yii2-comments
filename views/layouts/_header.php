@@ -15,16 +15,18 @@ $items = [
         'linkOptions' => ['data-testid' => 'nav-comments'],
     ],
     [
-        'label' => 'Login',
-        'url' => ['/site/login'],
-        'visible' => Yii::$app->user->isGuest,
+        'label' => 'Admin',
+        'url' => ['/admin/default/index'],
+        'linkOptions' => ['data-testid' => 'nav-admin'],
     ],
     [
         'label' => 'Logout (' . Html::encode(Yii::$app->user->identity?->username ?? '') . ')',
-        'url' => ['/site/logout'],
+        'url' => ['/admin/auth/logout'],
         'linkOptions' => [
+            // yii.js turns this link into a POST form with the CSRF token
             'data-method' => 'post',
             'class' => 'nav-link logout',
+            'data-testid' => 'nav-logout',
         ],
         'visible' => !Yii::$app->user->isGuest,
     ],

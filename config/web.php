@@ -38,6 +38,8 @@ $config = [
         'user' => [
             'identityClass' => \app\models\User::class,
             'enableAutoLogin' => true,
+            // Guests who open an admin page are sent here
+            'loginUrl' => ['/admin/auth/login'],
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
@@ -56,6 +58,11 @@ $config = [
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
+        ],
+    ],
+    'modules' => [
+        'admin' => [
+            'class' => \app\modules\admin\Module::class,
         ],
     ],
     'params' => $params,

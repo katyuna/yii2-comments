@@ -40,6 +40,7 @@ Open <http://localhost:8080>.
 make up        # start (rebuilds images if Dockerfiles changed)
 make down      # stop
 make migrate   # apply new DB migrations
+make admin-sync  # create the admin or update its password from ADMIN_USERNAME / ADMIN_PASSWORD in .env
 make sh        # shell inside the php container
 make lint      # code style (PSR-12) + static analysis
 ```
@@ -86,6 +87,7 @@ make setup             # composer install + миграции БД (app и app_te
 make up        # запустить (пересоберёт образы, если менялись Dockerfile)
 make down      # остановить
 make migrate   # применить новые миграции БД
+make admin-sync  # создать админа или обновить его пароль из ADMIN_USERNAME / ADMIN_PASSWORD в .env
 make sh        # консоль внутри контейнера php
 make lint      # стиль кода (PSR-12) + статический анализ
 ```
