@@ -1,0 +1,11 @@
+# Smoke tests: is the running app alive? Real HTTP through nginx (PhpBrowser, Guzzle inside)
+# to the test stand (make test-up), plus direct checks of WebSocket, Centrifugo API and DB.
+# Run after `docker compose up` / deploy, before the other suites: make test-smoke
+actor: SmokeTester
+modules:
+    enabled:
+      - PhpBrowser:
+          # Container name inside the Docker network; the stand is http://localhost:8081 on the host
+          url: http://nginx-test
+      - Asserts
+      - \app\tests\Support\Helper\Smoke
