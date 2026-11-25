@@ -20,14 +20,13 @@ Every change, however small, lives in its own branch and reaches `main` through 
   | ui | `test/ui-<feature>` | `make test-ui` |
   | e2e | `test/e2e-<feature>` | `make test-e2e` |
   | regression | `test/regression-<feature>` | `make test-regress` |
-  | load | `test/load-<feature>` | JMeter, `tests/load/` |
 
   Skip a level only if it has nothing to cover for that feature (say why in the PR).
 - A feature is **done** only when its feature branch and all its test-level branches are merged.
 - **Order: app first, tests second.** Phase 1: all feature branches, one after another.
   Phase 2: tests for the whole app, one branch per suite (`test/unit-comments`,
   `test/functional-comments`, `test/smoke-comments`, `test/ui-comments`, `test/e2e-comments`,
-  `test/regression-comments`), then a `fix/` branch per bug the tests found, CI and load.
+  `test/regression-comments`), then a `fix/` branch per bug the tests found, and CI.
   The phase plan is in `CLAUDE.md` ("Work plan").
 - **Known trade-off (closed):** until phase 2 was done, `main` held code not covered by tests.
   It was a deliberate choice: the whole flow existed before tests were designed, and every

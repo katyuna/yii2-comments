@@ -18,9 +18,9 @@ if ! echo "$branch" | grep -Eq '^(feature|fix|test|chore|docs|ci)/[a-z0-9]+(-[a-
 fi
 
 if echo "$branch" | grep -q '^test/' \
-    && ! echo "$branch" | grep -Eq '^test/(unit|functional|smoke|ui|e2e|regression|load)-[a-z0-9]'; then
+    && ! echo "$branch" | grep -Eq '^test/(unit|functional|smoke|ui|e2e|regression)-[a-z0-9]'; then
     echo "WARNING: test branch '$branch' should be test/<level>-<feature>." >&2
-    echo "  Levels: unit, smoke, functional, e2e, regression, load. See CONTRIBUTING.md" >&2
+    echo "  Levels: unit, functional, smoke, ui, e2e, regression. See CONTRIBUTING.md" >&2
 fi
 
 exit 0

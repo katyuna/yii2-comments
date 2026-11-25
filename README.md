@@ -19,7 +19,6 @@ in real time over WebSockets (Centrifugo).
 | Tests: unit, functional, smoke, UI, E2E (3 browsers), regression — every flow step covered ([traceability](#traceability-keep-in-sync-with-claudemd)) | done, all green |
 | Bugs found by the tests | 4 found, fixed, locked by regression tests |
 | CI: GitHub Actions on every PR + nightly regression ([when the tests run](#when-the-tests-run-ci)) | done |
-| Load test (JMeter, bonus) | not done |
 
 ## Build and run (English)
 
@@ -458,7 +457,7 @@ Full rules: **[CONTRIBUTING.md](CONTRIBUTING.md)**.
 - Never commit to `main`. Every change goes in its own branch and reaches `main` through a Pull Request.
 - One feature = one branch with production code only: `feature/<feature-name>`.
 - Each test level of a feature gets its own branch: `test/<level>-<feature-name>`
-  (`unit`, `functional`, `smoke`, `ui`, `e2e`, `regression`, `load`).
+  (`unit`, `functional`, `smoke`, `ui`, `e2e`, `regression`).
   Phase 2 covered the whole app with one branch per suite: `test/<level>-comments`.
 - Order: app first (all feature branches), then tests (all test branches). Plan: `CLAUDE.md`.
 - Bug fix: `fix/<bug-name>`, then its regression test in `test/regression-<bug-name>`.

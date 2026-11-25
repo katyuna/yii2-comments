@@ -5,7 +5,7 @@
 ## Type
 
 - [ ] `feature/` new functionality (production code only)
-- [ ] `test/<level>-<feature>`: level: unit / smoke / functional / e2e / regression / load
+- [ ] `test/<level>-<feature>`: level: unit / functional / smoke / ui / e2e / regression
 - [ ] `fix/` bug fix (its regression test goes in `test/regression-<bug-name>`)
 - [ ] `chore/` / `docs/` / `ci/`
 
