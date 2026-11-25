@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/stand
       - run: make lint
 
@@ -39,12 +39,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/stand
       - run: make test-unit
       - name: Keep Codeception output of failed tests
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: unit-output
           path: tests/Support/output/
@@ -55,12 +55,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/stand
       - run: make test-func
       - name: Keep Codeception output of failed tests
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: functional-output
           path: tests/Support/output/
@@ -74,12 +74,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/stand
       - run: make test-smoke
       - name: Keep Codeception output of failed tests
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: smoke-output
           path: tests/Support/output/
@@ -91,12 +91,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/stand
       - run: make test-ui
       - name: Keep Playwright trace, screenshots and video
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ui-playwright
           path: |
@@ -116,7 +116,7 @@ jobs:
         browser: [chromium, firefox, webkit]
         shard: [1, 2]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/stand
       # Firefox and WebKit run only @cross-browser tests, so a shard may get none
       - run: >
@@ -125,7 +125,7 @@ jobs:
           ARGS="--shard=${{ matrix.shard }}/2 --pass-with-no-tests"
       - name: Keep Playwright trace, screenshots and video
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: e2e-${{ matrix.browser }}-${{ matrix.shard }}
           path: |
