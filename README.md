@@ -236,11 +236,33 @@ A second copy of the app that only tests use, so tests never touch your data:
 - **Tags**: Codeception `@group smoke|regression`, Playwright `@ui`, `@e2e`, `@regression`,
   `@cross-browser` in the test title. `@flowStep N` in the docblock marks the step of the comment flow.
 - **A failing test is never skipped or weakened.** If it finds a bug, the bug is fixed in a `fix/` branch.
-- **Artifacts of failed tests**: Codeception — `tests/Support/output/`; Playwright — trace,
-  screenshot and video in `tests/e2e/test-results/`, HTML report in `tests/e2e/playwright-report/`.
-  Open a trace with `npx playwright show-trace <file>` or at <https://trace.playwright.dev>.
+- **Artifacts of failed tests** are kept: see "Viewing the results" below.
 - **Screenshots** (UI-18) are approved images in `tests/e2e/specs/ui/__screenshots__/`. After an intended
   design change: `make test-ui ARGS="--update-snapshots"`, then review the new images in the PR.
+
+### Viewing the results
+
+**1. In the terminal.** Every `make test-…` command prints each test and a summary:
+Codeception — `✔` / `✖` per test and `OK (42 tests, …)` or `FAILURES!` with the reason of each failure;
+Playwright — `✓` / `✘` per test and `32 passed` / `1 failed`.
+Use `make -k test` to run all suites without stopping at the first failing one.
+
+**2. Playwright HTML report (UI, E2E).** Open `tests/e2e/playwright-report/index.html` in a browser
+(Windows: double-click it, or `start tests\e2e\playwright-report\index.html`). It lists every test of the
+**last** run with its steps and time; a failed test also has a screenshot, a video and a trace.
+Each run overwrites the report, so after `make test-ui` it shows UI tests, after `make test-e2e` E2E tests.
+`tests/e2e/test-results/junit.xml` holds the same result for CI.
+
+**3. Trace of a failed browser test.** `tests/e2e/test-results/<test name>/trace.zip` is a step-by-step
+recording: the page before and after every action, network, console. Drag the file onto
+<https://trace.playwright.dev> — it opens in your browser and is not uploaded anywhere.
+(`npx playwright show-trace` needs Node.js on the host, which this project does not require.)
+
+**4. Codeception (unit, functional, smoke).** When a test fails, the HTML page it received is saved in
+`tests/Support/output/*.fail.html`; open it in a browser to see what the test saw. Codeception does not
+delete old files there, so look at the date or empty the folder before a run. For a full HTML report
+of a suite add `--html`, e.g. `docker compose exec php vendor/bin/codecept run Unit --html`,
+then open `tests/Support/output/report.html`.
 
 ## Тестирование (по-русски)
 
@@ -300,11 +322,33 @@ Smoke, UI и E2E сначала поднимают **тестовый стенд
 - **Теги**: Codeception `@group smoke|regression`, Playwright `@ui`, `@e2e`, `@regression`,
   `@cross-browser` в названии теста. `@flowStep N` в описании отмечает шаг пути комментария.
 - **Упавший тест никогда не отключают и не ослабляют.** Если он нашёл ошибку, её исправляют в ветке `fix/`.
-- **Что остаётся от упавших тестов**: Codeception — `tests/Support/output/`; Playwright — трассировка,
-  скриншот и видео в `tests/e2e/test-results/`, HTML-отчёт в `tests/e2e/playwright-report/`.
-  Трассировку открыть: `npx playwright show-trace <файл>` или на <https://trace.playwright.dev>.
+- **Что остаётся от упавших тестов** — см. «Как смотреть результаты» ниже.
 - **Скриншоты** (UI-18) — утверждённые картинки в `tests/e2e/specs/ui/__screenshots__/`. После намеренного
   изменения дизайна: `make test-ui ARGS="--update-snapshots"`, затем просмотреть новые картинки в PR.
+
+### Как смотреть результаты
+
+**1. В терминале.** Каждая команда `make test-…` выводит каждый тест и итог:
+Codeception — `✔` / `✖` по тестам и `OK (42 tests, …)` или `FAILURES!` с причиной каждого падения;
+Playwright — `✓` / `✘` по тестам и `32 passed` / `1 failed`.
+`make -k test` прогоняет все сьюты и не останавливается на первом упавшем.
+
+**2. HTML-отчёт Playwright (UI, E2E).** Откройте в браузере `tests/e2e/playwright-report/index.html`
+(в Windows — двойной клик по файлу или `start tests\e2e\playwright-report\index.html`). В нём все тесты
+**последнего** прогона с шагами и временем; у упавшего теста ещё скриншот, видео и трассировка.
+Каждый запуск перезаписывает отчёт: после `make test-ui` в нём UI-тесты, после `make test-e2e` — E2E.
+`tests/e2e/test-results/junit.xml` — тот же результат для CI.
+
+**3. Трассировка упавшего браузерного теста.** `tests/e2e/test-results/<имя теста>/trace.zip` — пошаговая
+запись: страница до и после каждого действия, сеть, консоль. Перетащите файл на
+<https://trace.playwright.dev> — он откроется в вашем браузере и никуда не отправляется.
+(`npx playwright show-trace` требует Node.js на компьютере, а проекту он не нужен.)
+
+**4. Codeception (unit, functional, smoke).** Когда тест падает, полученная им HTML-страница сохраняется в
+`tests/Support/output/*.fail.html`; откройте её в браузере, чтобы увидеть то же, что видел тест.
+Старые файлы Codeception там не удаляет — смотрите на дату или очищайте папку перед прогоном.
+Полный HTML-отчёт по сьюту — с флагом `--html`, например
+`docker compose exec php vendor/bin/codecept run Unit --html`, затем откройте `tests/Support/output/report.html`.
 
 ## For contributors
 
