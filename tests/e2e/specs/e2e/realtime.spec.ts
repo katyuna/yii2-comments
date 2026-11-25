@@ -108,10 +108,11 @@ test.describe('Real-time admin list', () => {
    *
    * The test stand issues tokens for CENTRIFUGO_TOKEN_TTL seconds (5 by default), so the
    * test waits for the refresh instead of an hour.
+   * Regression: the fixed one-hour token was made configurable in fix/configurable-ws-token-ttl.
    *
    * @flowStep 7
    */
-  test('E-09 after logout the other tab stops receiving comments when the token expires @e2e', async ({
+  test('E-09 after logout the other tab stops receiving comments when the token expires @e2e @regression', async ({
     admin,
     guest,
   }) => {

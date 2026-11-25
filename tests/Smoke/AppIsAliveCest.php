@@ -37,7 +37,9 @@ final class AppIsAliveCest
 
     /**
      * S-02: a guest posts a comment and sees it first in the feed after the redirect.
+     * Regression: the redirect to /site/index was fixed in fix/redirect-home-after-post.
      *
+     * @group regression
      * @flowStep 1
      * @flowStep 2
      * @flowStep 3

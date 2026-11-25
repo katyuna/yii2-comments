@@ -15,7 +15,7 @@ use app\tests\Support\SmokeTester;
  *
  * @group regression
  */
-final class RegressionCest
+final class EnvironmentRegressionCest
 {
     /**
      * R-02: php-fpm passes .env variables to PHP: the admin from ADMIN_* logs in, and
