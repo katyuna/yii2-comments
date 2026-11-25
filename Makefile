@@ -2,7 +2,7 @@ DC = docker compose
 # -T: no TTY, so the targets also work in CI and scripts
 PHP = $(DC) exec -T php
 
-.PHONY: hooks start stop up down sh setup install migrate migrate-test admin-sync test-unit test-smoke test-func test-e2e test-regress test lint fix
+.PHONY: hooks start stop up down sh setup install migrate migrate-test admin-sync test-up test-down e2e-deps test-unit test-func test-smoke test-ui test-e2e test-regress test-report test lint fix
 
 hooks:         ## Once after cloning: enable branching reminder git hooks
 	git config core.hooksPath .githooks
@@ -44,27 +44,53 @@ migrate-test:  ## Apply DB migrations to the app_test DB
 admin-sync:    ## Create the admin or update its password from ADMIN_USERNAME / ADMIN_PASSWORD
 	$(PHP) php yii admin-user/sync
 
-test-unit:
+# ---- Tests ---------------------------------------------------------------------------
+# Unit and functional tests run inside the php container (in-process, DB app_test).
+# Smoke, UI and E2E tests need the test stand: php-test + nginx-test + centrifugo-test
+# on DB app_test (docker-compose.yml, profile "test"), started automatically.
+PW = $(DC) --profile test run --rm playwright
+
+test-up:       ## Start the test stand (http://localhost:8081, DB app_test)
+	$(DC) --profile test up -d --build php-test nginx-test centrifugo-test
+
+test-down:     ## Stop the test stand (the dev app keeps running)
+	$(DC) --profile test rm --stop --force php-test nginx-test centrifugo-test
+
+# npm ci runs only when package-lock.json is newer than the installed packages
+tests/e2e/node_modules/.package-lock.json: tests/e2e/package-lock.json
+	$(DC) --profile test run --rm --no-deps playwright npm ci --no-audit --no-fund
+
+e2e-deps: tests/e2e/node_modules/.package-lock.json  ## Install Playwright test dependencies
+
+test-unit:     ## Unit tests: models and services, publisher mocked
 	$(PHP) vendor/bin/codecept run Unit
 
-test-smoke:
-	$(PHP) vendor/bin/codecept run Functional -g smoke
-
-test-func:
+test-func:     ## Functional tests: HTTP requests handled in-process by Yii
 	$(PHP) vendor/bin/codecept run Functional
 
-test-e2e:
-	$(DC) --profile e2e run --rm playwright
+test-smoke: test-up  ## Smoke tests: real HTTP against the running test stand
+	$(PHP) vendor/bin/codecept run Smoke
 
-test-regress:
+test-ui: test-up e2e-deps  ## UI tests in Chromium (Playwright)
+	$(PW) npx playwright test --project=ui
+
+test-e2e: test-up e2e-deps  ## E2E flows: Chromium, plus @cross-browser in Firefox and WebKit
+	$(PW) npx playwright test --project=e2e-chromium --project=e2e-firefox --project=e2e-webkit
+
+test-regress: test-up e2e-deps  ## Everything tagged regression, in all suites
 	$(PHP) vendor/bin/codecept run -g regression
-	$(DC) --profile e2e run --rm playwright npx playwright test --grep @regression
+	$(PW) npx playwright test --grep @regression
 
-test: test-unit test-func test-e2e
+test-report:   ## Path of the last Playwright HTML report
+	@echo Open tests/e2e/playwright-report/index.html in a browser
 
-lint:
+test: test-unit test-func test-smoke test-ui test-e2e  ## All suites
+
+lint: e2e-deps  ## PHP: PSR-12 + PHPStan; TypeScript tests: ESLint + Prettier + tsc
 	$(PHP) vendor/bin/php-cs-fixer fix --dry-run --diff
 	$(PHP) vendor/bin/phpstan analyse --memory-limit=1G --no-progress
+	$(DC) --profile test run --rm --no-deps playwright npm run lint
 
-fix:
+fix: e2e-deps   ## Fix code style in PHP and TypeScript
 	$(PHP) vendor/bin/php-cs-fixer fix
+	$(DC) --profile test run --rm --no-deps playwright npm run fix

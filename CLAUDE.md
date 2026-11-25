@@ -51,13 +51,17 @@ make sh            # shell into php container
 make setup         # first run after `make up`: composer install + migrations (app + app_test)
 make migrate       # php yii migrate --interactive=0 (app DB)
 make migrate-test  # migrations on app_test DB
+make test-up       # start the test stand: php-test + nginx-test + centrifugo-test, DB app_test, :8081
+make test-down     # stop the test stand
 make test-unit     # vendor/bin/codecept run Unit
-make test-smoke    # vendor/bin/codecept run Functional -g smoke
 make test-func     # vendor/bin/codecept run Functional
-make test-e2e      # Playwright in its own container
+make test-smoke    # vendor/bin/codecept run Smoke (real HTTP to the test stand)
+make test-ui       # Playwright, project "ui" (Chromium)
+make test-e2e      # Playwright, projects e2e-chromium/-firefox/-webkit
 make test-regress  # all suites, group/tag "regression"
-make lint          # php-cs-fixer (dry-run) + phpstan
-make fix           # php-cs-fixer fix
+make test          # all suites
+make lint          # php-cs-fixer (dry-run) + phpstan + ESLint/Prettier/tsc for tests/e2e
+make fix           # php-cs-fixer fix + eslint --fix/prettier for tests/e2e
 ```
 
 If a `make` target does not exist yet, create it in `Makefile` rather than typing long commands.
@@ -74,8 +78,10 @@ migrations/        DB schema + admin user seed
 views/             Public views
 web/               Document root (index.php, js/admin-realtime.js)
 tests/Unit/        Codeception unit tests
-tests/Functional/  Codeception functional tests (smoke = group "smoke")
-tests/e2e/         Playwright: specs/, pages/ (Page Objects), fixtures/
+tests/Functional/  Codeception functional tests (in-process, Yii2 module)
+tests/Smoke/       Codeception smoke tests (PhpBrowser, real HTTP to the test stand)
+tests/e2e/         Playwright: specs/ui/, specs/e2e/, pages/ (Page Objects), fixtures/
+tests/TEST_CHECKLIST.md  All test cases with IDs; each test names its ID
 tests/load/        JMeter .jmx + README
 docker/            Dockerfiles and configs per service
 .github/workflows/ CI pipelines
@@ -121,18 +127,24 @@ docker/            Dockerfiles and configs per service
 
 - **Every behaviour change gets tests at each relevant level**, each level in its own
   `test/<level>-<feature>` branch/PR (see Git workflow). The tests are written in
-  phase 2, after the whole app is built (see "Work plan").
+  phase 2, after the whole app is built (see "Work plan"). In phase 2 there is one branch
+  per suite for the whole app: `test/<level>-comments`.
+- A test that finds a bug stays failing (never skipped) and is listed in the PR. After all
+  suites are written, each bug gets its own `fix/<bug-name>` branch.
 - **Never delete, skip or weaken a test to make it pass.** If a test is wrong, explain why before changing it.
 - Test pyramid: many unit, fewer functional, few e2e.
 - Arrange–Act–Assert structure; one behaviour per test; descriptive names
   (`testGuestCannotPostEmptyComment`, `admin sees new comment without reload`).
 - Tests are independent: each creates its own data (fixtures), no order dependence,
-  DB cleaned between tests. Tests use the `app_test` DB only.
+  DB cleaned between tests. Tests use the `app_test` DB only: smoke, UI and E2E go to the
+  test stand (`make test-up`), never to the dev app.
 - No `sleep()` / fixed timeouts. Playwright: web-first assertions (`await expect(locator).toBeVisible()`).
 - Selectors: `data-testid` attributes only (add them to views). No CSS-class or XPath selectors.
 - E2E uses Page Objects (`tests/e2e/pages/`). Realtime test uses **two browser contexts**
   (guest + admin) in one spec.
-- Tags: Codeception `@group smoke|regression`; Playwright `@smoke` / `@regression` in test titles.
+- Tags: Codeception `@group smoke|regression`; Playwright `@ui`, `@e2e`, `@regression`,
+  `@cross-browser` (also runs in Firefox and WebKit) in test titles.
+- Every test names its checklist ID (`U-01`, `F-03`, `UI-17` …) from `tests/TEST_CHECKLIST.md`.
 - A test for every fixed bug, tagged `regression`, in branch `test/regression-<bug-name>`.
 - On failure keep artifacts: Codeception `tests/Support/output/`, Playwright trace + screenshot + video (CI uploads them).
 
@@ -141,8 +153,10 @@ docker/            Dockerfiles and configs per service
 | Suite | Purpose | When | Time budget |
 |---|---|---|---|
 | unit | Model validation, services with mocked publisher | every commit/PR | < 30 s |
-| smoke | App is alive: pages open, guest can post, admin can log in, WS connects | after `compose up`/deploy, gates the rest | < 2 min |
-| e2e | Full flow in a real browser incl. realtime | PR to `main`, nightly | < 10 min, sharded |
+| functional | In-process HTTP: forms, CSRF, access, CRUD, escaping | every commit/PR | < 2 min |
+| smoke | App is alive (real HTTP to the test stand): pages open, guest can post, admin can log in, WS connects | after `compose up`/deploy, gates the rest | < 2 min |
+| ui | One page in a real browser: states, a11y (axe), screenshots, mobile widths | PR to `main` | < 5 min |
+| e2e | Full flow in a real browser incl. realtime, two contexts | PR to `main`, nightly | < 10 min, sharded |
 | regression | All suites filtered by `regression` + bug tests | nightly, before release | — |
 | load (bonus) | Throughput of POST comment, WS connections | manual / weekly | — |
 
@@ -150,14 +164,18 @@ docker/            Dockerfiles and configs per service
 
 | # | Flow step | Locked by |
 |---|---|---|
-| 1 | Guest opens form | smoke: `FeedCest::formIsVisible` |
-| 2 | Input validated (empty, too long, XSS) | unit: `CommentTest` |
-| 3 | Comment saved to DB | functional: `PostCommentCest` |
-| 4 | Comment shown in public feed (encoded) | functional + e2e `guest-posts-comment.spec.ts` |
-| 5 | Event published to Centrifugo | unit: `CommentServiceTest` (mock publisher) |
-| 6 | Admin logs in / guest is denied | functional: `AdminAccessCest` |
-| 7 | New comment appears in admin list without reload | e2e: `admin-realtime.spec.ts` |
-| 8 | Admin edits / deletes comment | functional `AdminCrudCest` + e2e `admin-crud.spec.ts` |
+| 1 | Guest fills in the form | — |
+| 2 | Validation and anti-spam (CSRF, honeypot, rate limit) | — |
+| 3 | Comment saved to MySQL | — |
+| 4 | Comment shown in the public feed (encoded) | — |
+| 5 | Event published to Centrifugo (HTTP API) | — |
+| 6 | Admin logs in / guest is denied | — |
+| 7 | Admin list subscribes to the channel (badge Live) | — |
+| 8 | New comment appears in the admin list without reload | — |
+| 9 | Admin edits / deletes a comment | — |
+
+Steps match `@flowStep N` in tests and the "Шаг" column of `tests/TEST_CHECKLIST.md`.
+Each test branch fills in its suite.
 
 Update this table whenever a test is added, renamed or removed.
 
@@ -169,7 +187,7 @@ Full branching rules: **`CONTRIBUTING.md`** (source of truth; summary in README)
   no direct commits to `main` by convention. Revisit after phase 2 (see "Work plan").
 - **One feature = one branch** `feature/<feature-name>`, containing **production code only**.
 - **Each test level = its own branch** `test/<level>-<feature-name>`,
-  level ∈ `unit | smoke | functional | e2e | regression | load`.
+  level ∈ `unit | functional | smoke | ui | e2e | regression | load`.
   A feature is done only when the feature branch and all its test-level branches are merged.
 - Other types: `fix/`, `chore/`, `docs/`, `ci/`. Names are kebab-case (`[a-z0-9-]`), named after the feature.
 - Branch from a fresh `main`; keep branches short-lived (one branch = one PR);
@@ -214,8 +232,11 @@ Before changing any file, run `git branch --show-current`.
 
 `data-testid` attributes are added to views already in phase 1, so phase 2 does not touch views.
 
-**Phase 2 — tests.** For each feature, in the same order: `test/unit-…`, `test/smoke-…`,
-`test/functional-…`, `test/e2e-…`; then `ci/github-actions`, regression, load (bonus).
+**Phase 2 — tests.** One branch per suite for the whole app (owner's decision, 2026-11-25),
+each based on the previous one: `chore/test-infra` (test stand, Playwright, Makefile, README) →
+`test/unit-comments` → `test/functional-comments` → `test/smoke-comments` → `test/ui-comments` →
+`test/e2e-comments` → `test/regression-comments`; then one `fix/<bug>` branch per bug the
+tests found, `ci/github-actions`, load (bonus). Branches are pushed; the owner merges.
 
 **After phase 2 — reminder.** When the last phase-2 branch is merged, **remind the owner**
 that `main` is still unprotected and ask whether to enable branch protection on GitHub
