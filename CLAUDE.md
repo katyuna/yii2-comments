@@ -186,8 +186,8 @@ Update this table whenever a test is added, renamed or removed.
 
 Full branching rules: **`CONTRIBUTING.md`** (source of truth; summary in README).
 
-- **GitHub Flow.** `main` is always green. It is intentionally *not* protected on GitHub;
-  no direct commits to `main` by convention. Revisit after phase 2 (see "Work plan").
+- **GitHub Flow.** `main` is always green. It is *not* protected on GitHub;
+  no direct commits to `main` by convention. Protection is the owner's decision (see "Work plan").
 - **One feature = one branch** `feature/<feature-name>`, containing **production code only**.
 - **Each test level = its own branch** `test/<level>-<feature-name>`,
   level ∈ `unit | functional | smoke | ui | e2e | regression | load`.
@@ -201,9 +201,8 @@ Full branching rules: **`CONTRIBUTING.md`** (source of truth; summary in README)
 - `make hooks` enables `.githooks/pre-commit`, which warns (does not block) on `main` or a bad branch name.
 - Bug fixes: `fix/<bug-name>` (code only), then `test/regression-<bug-name>` with the test
   that reproduces the bug, tagged `regression`.
-- Order: **app first, tests second** (see "Work plan"). Known trade-off: until phase 2
-  is done, `main` holds code not covered by tests. Phase 2 starts right after phase 1;
-  no new features until every feature has its test branches merged.
+- Order: **app first, tests second** (see "Work plan"). Both phases are done; a new feature
+  now comes with its test-level branches before the next feature starts.
 - **Conventional Commits**, English, imperative mood, ≤ 72 chars subject:
   `feat(comment): add guest comment form`,
   `test(e2e): cover realtime comment in admin list`,
@@ -223,7 +222,10 @@ Before changing any file, run `git branch --show-current`.
 
 ## Work plan
 
-**Phase 1 — app.** Feature branches in this order, each merged before the next starts:
+**Status (2026-11-25):** phase 1 and phase 2 are done and merged; CI runs on every PR and
+nightly. Left: load test (bonus).
+
+**Phase 1 — app (done).** Feature branches in this order, each merged before the next starts:
 
 | # | Branch | Scope |
 |---|---|---|
@@ -235,7 +237,7 @@ Before changing any file, run `git branch --show-current`.
 
 `data-testid` attributes are added to views already in phase 1, so phase 2 does not touch views.
 
-**Phase 2 — tests.** One branch per suite for the whole app (owner's decision, 2026-11-25),
+**Phase 2 — tests (done).** One branch per suite for the whole app (owner's decision, 2026-11-25),
 each based on the previous one: `chore/test-infra` (test stand, Playwright, Makefile, README) →
 `test/unit-comments` → `test/functional-comments` → `test/smoke-comments` → `test/ui-comments` →
 `test/e2e-comments` → `test/regression-comments`; then one `fix/<bug>` branch per bug the

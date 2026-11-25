@@ -1,5 +1,8 @@
 # Yii2 Comments
 
+[![CI](https://github.com/katyuna/yii2-comments/actions/workflows/ci.yml/badge.svg)](https://github.com/katyuna/yii2-comments/actions/workflows/ci.yml)
+[![Nightly regression](https://github.com/katyuna/yii2-comments/actions/workflows/nightly.yml/badge.svg)](https://github.com/katyuna/yii2-comments/actions/workflows/nightly.yml)
+
 A simple commenting system on Yii2, built mainly to demonstrate a test system.
 Guests post comments to a public feed. Admins moderate them and see new comments
 in real time over WebSockets (Centrifugo).
@@ -7,6 +10,16 @@ in real time over WebSockets (Centrifugo).
 Простая система комментариев на Yii2, сделана в первую очередь для демонстрации системы тестов.
 Гости пишут комментарии в публичную ленту. Админы их модерируют и видят новые комментарии
 в реальном времени через WebSocket (Centrifugo).
+
+## Status / Статус
+
+| Part | State |
+|---|---|
+| App: guest form, public feed, admin login, CRUD, real-time admin list | done |
+| Tests: unit, functional, smoke, UI, E2E (3 browsers), regression — every flow step covered ([traceability](#traceability-keep-in-sync-with-claudemd)) | done, all green |
+| Bugs found by the tests | 4 found, fixed, locked by regression tests |
+| CI: GitHub Actions on every PR + nightly regression ([when the tests run](#when-the-tests-run-ci)) | done |
+| Load test (JMeter, bonus) | not done |
 
 ## Build and run (English)
 
@@ -446,13 +459,13 @@ Full rules: **[CONTRIBUTING.md](CONTRIBUTING.md)**.
 - One feature = one branch with production code only: `feature/<feature-name>`.
 - Each test level of a feature gets its own branch: `test/<level>-<feature-name>`
   (`unit`, `functional`, `smoke`, `ui`, `e2e`, `regression`, `load`).
-  Phase 2 covers the whole app with one branch per suite: `test/<level>-comments`.
+  Phase 2 covered the whole app with one branch per suite: `test/<level>-comments`.
 - Order: app first (all feature branches), then tests (all test branches). Plan: `CLAUDE.md`.
 - Bug fix: `fix/<bug-name>`, then its regression test in `test/regression-<bug-name>`.
 - Names use kebab-case: `feature/guest-comment-form`, `test/e2e-guest-comment-form`.
 - Start from a fresh `main`, keep branches short-lived, rebase on `main` before the PR.
-- Merge with squash only; the branch is deleted after merge.
-- `main` is intentionally not protected on GitHub; revisit after all tests are written.
+- Merge with squash only, after CI is green; the branch is deleted after merge.
+- `main` is not protected on GitHub; the rules hold by convention (git hook, PR template, CI on every PR).
 
 ## Traceability (keep in sync with CLAUDE.md)
 

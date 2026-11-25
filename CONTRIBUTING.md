@@ -29,9 +29,10 @@ Every change, however small, lives in its own branch and reaches `main` through 
   `test/functional-comments`, `test/smoke-comments`, `test/ui-comments`, `test/e2e-comments`,
   `test/regression-comments`), then a `fix/` branch per bug the tests found, CI and load.
   The phase plan is in `CLAUDE.md` ("Work plan").
-- **Known trade-off:** until phase 2 is done, `main` holds code that is not covered by tests
-  yet. This is a deliberate choice: the whole flow exists before tests are designed, and every
-  PR stays small and reviews one thing. Start phase 2 right after phase 1.
+- **Known trade-off (closed):** until phase 2 was done, `main` held code not covered by tests.
+  It was a deliberate choice: the whole flow existed before tests were designed, and every
+  PR stayed small and reviewed one thing. Both phases are done (2026-11-25). New features now
+  come with their test branches right away.
 
 ### Bug fixes
 
