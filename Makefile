@@ -2,10 +2,23 @@ DC = docker compose
 # -T: no TTY, so the targets also work in CI and scripts
 PHP = $(DC) exec -T php
 
-.PHONY: hooks up down sh setup install migrate migrate-test admin-sync test-unit test-smoke test-func test-e2e test-regress test lint fix
+.PHONY: hooks start stop up down sh setup install migrate migrate-test admin-sync test-unit test-smoke test-func test-e2e test-regress test lint fix
 
 hooks:         ## Once after cloning: enable branching reminder git hooks
 	git config core.hooksPath .githooks
+
+start: .env    ## Deploy and run everything with one command (first run and after git pull)
+	$(MAKE) --no-print-directory up
+	$(MAKE) --no-print-directory setup
+	@echo Ready. Open http://localhost:8080 - admin area: http://localhost:8080/admin
+	@echo Port and admin login/password: APP_PORT, ADMIN_USERNAME, ADMIN_PASSWORD in .env
+
+stop: down     ## Stop the project (data in the DB is kept)
+
+# $(file) is built into make, so this works in cmd/PowerShell too, where cp does not exist
+.env:
+	$(file >$@,$(file <.env.example))
+	@echo Created .env from .env.example. Change the passwords and keys in it.
 
 up:            ## Build and start all containers
 	$(DC) up -d --build

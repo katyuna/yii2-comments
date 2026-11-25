@@ -20,17 +20,34 @@ Install on the host first:
 
 PHP, Composer and Node.js are not needed on the host: everything runs in containers.
 
-### First run
+### Start
 
 ```bash
 git clone https://github.com/katyuna/yii2-comments.git
 cd yii2-comments
-cp .env.example .env   # then change the secrets (passwords, keys)
-make up                # build images and start containers (first time: several minutes)
-make setup             # composer install + DB migrations (app and app_test)
+make start
 ```
 
-Open <http://localhost:8080>.
+`make start` does everything in one command, so it is the same for the first run and every next run:
+
+1. creates `.env` from `.env.example` if there is no `.env` yet;
+2. builds the images and starts the containers (`make up`; the first time takes several minutes);
+3. installs PHP dependencies and applies DB migrations to `app` and `app_test` (`make setup`);
+4. prints the addresses to open.
+
+When it says **Ready**, open <http://localhost:8080>.
+
+For anything except a local try-out, change the passwords and keys in `.env` (they are copied
+from `.env.example`), then run `make start` again.
+
+### Stop
+
+```bash
+make stop
+```
+
+This stops and removes the containers. Comments and the admin user stay in the DB:
+the next `make start` shows them again. To delete all data as well: `docker compose down -v`.
 
 | Service | Address |
 |---|---|
@@ -56,24 +73,25 @@ comments per minute from one IP (default 5).
 ### Everyday commands
 
 ```bash
-make up        # start (rebuilds images if Dockerfiles changed)
-make down      # stop
+make start     # deploy and run: .env, containers, dependencies, migrations
+make stop      # stop (data is kept)
+make up        # only start the containers (rebuilds images if Dockerfiles changed)
 make migrate   # apply new DB migrations
 make admin-sync  # create the admin or update its password from ADMIN_USERNAME / ADMIN_PASSWORD in .env
 make sh        # shell inside the php container
 make lint      # code style (PSR-12) + static analysis
 ```
 
-After `git pull`, run `make up && make setup` again: it installs new dependencies and applies new migrations.
+After `git pull`, run `make start` again: it installs new dependencies and applies new migrations.
 
 ### Troubleshooting
 
-- **Port is busy** (`port is already allocated`): change `APP_PORT`, `MYSQL_PORT` or `CENTRIFUGO_PORT` in `.env`, then `make up`.
-- **DB settings changed but nothing happens**: MySQL reads them only on the first start. Reset the DB (deletes all data): `docker compose down -v && make up && make setup`.
+- **Port is busy** (`port is already allocated`): change `APP_PORT`, `MYSQL_PORT` or `CENTRIFUGO_PORT` in `.env`, then `make start`.
+- **DB settings changed but nothing happens**: MySQL reads them only on the first start. Reset the DB (deletes all data): `docker compose down -v && make start`.
 - **Logs**: `docker compose logs -f php nginx`; Yii logs are in `runtime/logs/app.log`.
 - **Admin badge stays "Connecting…" or shows "Offline"**: `CENTRIFUGO_ALLOWED_ORIGINS` must match
   the address in the browser (for example `http://localhost:8080`; change it together with `APP_PORT`),
-  then `make up`. Details: `docker compose logs centrifugo`.
+  then `make start`. Details: `docker compose logs centrifugo`.
 - **Cannot log in as admin after changing the password in `.env`**: run `make admin-sync`.
 
 ## Сборка и запуск (по-русски)
@@ -86,17 +104,34 @@ After `git pull`, run `make up && make setup` again: it installs new dependencie
 
 PHP, Composer и Node.js на компьютер ставить не нужно: всё работает в контейнерах.
 
-### Первый запуск
+### Запуск
 
 ```bash
 git clone https://github.com/katyuna/yii2-comments.git
 cd yii2-comments
-cp .env.example .env   # затем поменяйте секреты (пароли, ключи)
-make up                # собрать образы и запустить контейнеры (в первый раз — несколько минут)
-make setup             # composer install + миграции БД (app и app_test)
+make start
 ```
 
-Откройте <http://localhost:8080>.
+`make start` делает всё одной командой, поэтому она одна и та же и для первого запуска, и для всех следующих:
+
+1. создаёт `.env` из `.env.example`, если `.env` ещё нет;
+2. собирает образы и запускает контейнеры (`make up`; в первый раз — несколько минут);
+3. ставит зависимости PHP и применяет миграции к базам `app` и `app_test` (`make setup`);
+4. выводит адреса, которые нужно открыть.
+
+Когда появится **Ready**, откройте <http://localhost:8080>.
+
+Если проект нужен не только для проверки на своём компьютере, поменяйте пароли и ключи в `.env`
+(они скопированы из `.env.example`) и снова выполните `make start`.
+
+### Остановка
+
+```bash
+make stop
+```
+
+Команда останавливает и удаляет контейнеры. Комментарии и админ остаются в базе:
+после следующего `make start` они снова на месте. Чтобы удалить и все данные: `docker compose down -v`.
 
 | Сервис | Адрес |
 |---|---|
@@ -122,24 +157,25 @@ make setup             # composer install + миграции БД (app и app_te
 ### Команды на каждый день
 
 ```bash
-make up        # запустить (пересоберёт образы, если менялись Dockerfile)
-make down      # остановить
+make start     # развернуть и запустить: .env, контейнеры, зависимости, миграции
+make stop      # остановить (данные сохраняются)
+make up        # только запустить контейнеры (пересоберёт образы, если менялись Dockerfile)
 make migrate   # применить новые миграции БД
 make admin-sync  # создать админа или обновить его пароль из ADMIN_USERNAME / ADMIN_PASSWORD в .env
 make sh        # консоль внутри контейнера php
 make lint      # стиль кода (PSR-12) + статический анализ
 ```
 
-После `git pull` снова выполните `make up && make setup`: так установятся новые зависимости и применятся новые миграции.
+После `git pull` снова выполните `make start`: так установятся новые зависимости и применятся новые миграции.
 
 ### Если что-то не работает
 
-- **Порт занят** (`port is already allocated`): поменяйте `APP_PORT`, `MYSQL_PORT` или `CENTRIFUGO_PORT` в `.env`, затем `make up`.
-- **Поменяли настройки БД, а ничего не изменилось**: MySQL читает их только при первом запуске. Сбросить БД (удалит все данные): `docker compose down -v && make up && make setup`.
+- **Порт занят** (`port is already allocated`): поменяйте `APP_PORT`, `MYSQL_PORT` или `CENTRIFUGO_PORT` в `.env`, затем `make start`.
+- **Поменяли настройки БД, а ничего не изменилось**: MySQL читает их только при первом запуске. Сбросить БД (удалит все данные): `docker compose down -v && make start`.
 - **Логи**: `docker compose logs -f php nginx`; логи Yii — в `runtime/logs/app.log`.
 - **Метка в админке так и остаётся «Connecting…» или показывает «Offline»**: `CENTRIFUGO_ALLOWED_ORIGINS`
   должен совпадать с адресом в браузере (например `http://localhost:8080`; меняйте вместе с `APP_PORT`),
-  затем `make up`. Подробности: `docker compose logs centrifugo`.
+  затем `make start`. Подробности: `docker compose logs centrifugo`.
 - **Не получается войти в админку после смены пароля в `.env`**: выполните `make admin-sync`.
 
 ## For contributors

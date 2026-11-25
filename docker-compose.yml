@@ -1,5 +1,5 @@
 # Yii2 Comments — local environment
-# Usage: cp .env.example .env && docker compose up -d --build
+# Usage: make start (creates .env from .env.example, starts containers, runs migrations)
 # App:        http://localhost:${APP_PORT:-8080}
 # WebSocket:  ws://localhost:${APP_PORT:-8080}/connection/websocket (nginx proxies it to Centrifugo)
 
