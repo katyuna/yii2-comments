@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4e0ee4ced6aa55217f5f5f3cce10a309",
+    "content-hash": "97a4130a3a2230d6facdf7bf3fba8b49",
     "packages": [
         {
             "name": "bower-asset/inputmask",
@@ -1685,6 +1685,143 @@
     ],
     "packages-dev": [
         {
+            "name": "allure-framework/allure-codeception",
+            "version": "v2.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/allure-framework/allure-codeception.git",
+                "reference": "c3c56e2dc3bb0d4013651ed9751c618f72ddd06a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/allure-framework/allure-codeception/zipball/c3c56e2dc3bb0d4013651ed9751c618f72ddd06a",
+                "reference": "c3c56e2dc3bb0d4013651ed9751c618f72ddd06a",
+                "shasum": ""
+            },
+            "require": {
+                "allure-framework/allure-php-commons": "^2.5.0",
+                "codeception/codeception": "^5.0.3",
+                "ext-json": "*",
+                "php": "^8"
+            },
+            "require-dev": {
+                "psalm/plugin-phpunit": "^0.19.0 || ^0.20.1",
+                "squizlabs/php_codesniffer": "^4.0.1",
+                "vimeo/psalm": "^5.26.1 || ^6.16.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Qameta\\Allure\\Codeception\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Ivan Krutov",
+                    "email": "vania-pooh@aerokube.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Edward Surov",
+                    "email": "zoohie@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Allure Codeception integration",
+            "homepage": "https://allurereport.org/",
+            "keywords": [
+                "allure",
+                "attachments",
+                "cases",
+                "codeception",
+                "report",
+                "steps",
+                "testing"
+            ],
+            "support": {
+                "email": "allure@qameta.io",
+                "issues": "https://github.com/allure-framework/allure-codeception/issues",
+                "source": "https://github.com/allure-framework/allure-codeception"
+            },
+            "time": "2026-11-09T06:18:24+00:00",
+            "published-time": "2026-11-09T06:19:08+00:00"
+        },
+        {
+            "name": "allure-framework/allure-php-commons",
+            "version": "v2.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/allure-framework/allure-php-commons2.git",
+                "reference": "6be79085cdb9cf367b584a0f31ef99df99d6ea09"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/allure-framework/allure-php-commons2/zipball/6be79085cdb9cf367b584a0f31ef99df99d6ea09",
+                "reference": "6be79085cdb9cf367b584a0f31ef99df99d6ea09",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/annotations": "^1.12 || ^2",
+                "ext-json": "*",
+                "php": "^8",
+                "psr/log": "^1 || ^2 || ^3",
+                "ramsey/uuid": "^3 || ^4"
+            },
+            "conflict": {
+                "amphp/byte-stream": "<1.5.1"
+            },
+            "require-dev": {
+                "jetbrains/phpstorm-attributes": "^1",
+                "phpunit/phpunit": "^9.6.8",
+                "psalm/plugin-phpunit": "^0.18.4",
+                "squizlabs/php_codesniffer": "^3.7.2",
+                "vimeo/psalm": "^5.17"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Qameta\\Allure\\": "src",
+                    "Yandex\\Allure\\Adapter\\": "src/Legacy"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Dmitry Baev",
+                    "email": "baev.dm@gmail.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Edward Surov",
+                    "email": "zoohie@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Allure PHP commons",
+            "homepage": "https://allurereport.org/",
+            "keywords": [
+                "allure",
+                "commons",
+                "php",
+                "report",
+                "testing"
+            ],
+            "support": {
+                "email": "allure@qameta.io",
+                "issues": "https://github.com/allure-framework/allure-php-commons2/issues",
+                "source": "https://github.com/allure-framework/allure-php-commons"
+            },
+            "time": "2026-11-20T19:58:48+00:00",
+            "published-time": "2026-11-20T19:59:33+00:00"
+        },
+        {
             "name": "behat/gherkin",
             "version": "v4.19.0",
             "source": {
@@ -1769,6 +1906,67 @@
             ],
             "time": "2026-11-20T10:20:57+00:00",
             "published-time": "2026-11-20T10:21:40+00:00"
+        },
+        {
+            "name": "brick/math",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/brick/math.git",
+                "reference": "2effe05d2177c451b86c6a073196a4034c02f211"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/brick/math/zipball/2effe05d2177c451b86c6a073196a4034c02f211",
+                "reference": "2effe05d2177c451b86c6a073196a4034c02f211",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "2.2.13",
+                "phpstan/phpstan-phpunit": "2.0.18",
+                "phpunit/phpunit": "^11.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Brick\\Math\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Arbitrary-precision arithmetic library",
+            "keywords": [
+                "Arbitrary-precision",
+                "BigInteger",
+                "BigRational",
+                "arithmetic",
+                "bigdecimal",
+                "bignum",
+                "bignumber",
+                "brick",
+                "decimal",
+                "integer",
+                "math",
+                "mathematics",
+                "rational"
+            ],
+            "support": {
+                "issues": "https://github.com/brick/math/issues",
+                "source": "https://github.com/brick/math/tree/1.0.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/BenMorel",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-09-12T10:28:18+00:00",
+            "published-time": "2026-09-12T12:23:30+00:00"
         },
         {
             "name": "clue/ndjson-react",
@@ -2744,6 +2942,84 @@
             ],
             "time": "2024-05-06T16:37:16+00:00",
             "published-time": "2024-05-06T17:01:42+00:00"
+        },
+        {
+            "name": "doctrine/annotations",
+            "version": "2.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/doctrine/annotations.git",
+                "reference": "901c2ee5d26eb64ff43c47976e114bf00843acf7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/doctrine/annotations/zipball/901c2ee5d26eb64ff43c47976e114bf00843acf7",
+                "reference": "901c2ee5d26eb64ff43c47976e114bf00843acf7",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/lexer": "^2 || ^3",
+                "ext-tokenizer": "*",
+                "php": "^7.2 || ^8.0",
+                "psr/cache": "^1 || ^2 || ^3"
+            },
+            "require-dev": {
+                "doctrine/cache": "^2.0",
+                "doctrine/coding-standard": "^10",
+                "phpstan/phpstan": "^1.10.28",
+                "phpunit/phpunit": "^7.5 || ^8.5 || ^9.5",
+                "symfony/cache": "^5.4 || ^6.4 || ^7",
+                "vimeo/psalm": "^4.30 || ^5.14"
+            },
+            "suggest": {
+                "php": "PHP 8.0 or higher comes with attributes, a native replacement for annotations"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Doctrine\\Common\\Annotations\\": "lib/Doctrine/Common/Annotations"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Guilherme Blanco",
+                    "email": "guilhermeblanco@gmail.com"
+                },
+                {
+                    "name": "Roman Borschel",
+                    "email": "roman@code-factory.org"
+                },
+                {
+                    "name": "Benjamin Eberlei",
+                    "email": "kontakt@beberlei.de"
+                },
+                {
+                    "name": "Jonathan Wage",
+                    "email": "jonwage@gmail.com"
+                },
+                {
+                    "name": "Johannes Schmitt",
+                    "email": "schmittjoh@gmail.com"
+                }
+            ],
+            "description": "Docblock Annotations Parser",
+            "homepage": "https://www.doctrine-project.org/projects/annotations.html",
+            "keywords": [
+                "annotations",
+                "docblock",
+                "parser"
+            ],
+            "support": {
+                "issues": "https://github.com/doctrine/annotations/issues",
+                "source": "https://github.com/doctrine/annotations/tree/2.0.2"
+            },
+            "abandoned": true,
+            "time": "2024-09-05T10:17:24+00:00",
+            "published-time": "2024-09-05T14:54:52+00:00"
         },
         {
             "name": "ergebnis/agent-detector",
@@ -4298,6 +4574,56 @@
             "published-time": "2026-11-19T12:17:59+00:00"
         },
         {
+            "name": "psr/cache",
+            "version": "3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/cache.git",
+                "reference": "aa5030cfa5405eccfdcb1083ce040c2cb8d253bf"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/cache/zipball/aa5030cfa5405eccfdcb1083ce040c2cb8d253bf",
+                "reference": "aa5030cfa5405eccfdcb1083ce040c2cb8d253bf",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.0.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Cache\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "https://www.php-fig.org/"
+                }
+            ],
+            "description": "Common interface for caching libraries",
+            "keywords": [
+                "cache",
+                "psr",
+                "psr-6"
+            ],
+            "support": {
+                "source": "https://github.com/php-fig/cache/tree/3.0.0"
+            },
+            "time": "2021-02-03T23:26:27+00:00",
+            "published-time": "2021-02-03T23:27:34+00:00"
+        },
+        {
             "name": "psr/http-client",
             "version": "1.0.3",
             "source": {
@@ -4584,6 +4910,161 @@
             },
             "time": "2019-03-08T08:55:37+00:00",
             "published-time": "2019-03-08T09:01:32+00:00"
+        },
+        {
+            "name": "ramsey/collection",
+            "version": "2.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ramsey/collection.git",
+                "reference": "344572933ad0181accbf4ba763e85a0306a8c5e2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ramsey/collection/zipball/344572933ad0181accbf4ba763e85a0306a8c5e2",
+                "reference": "344572933ad0181accbf4ba763e85a0306a8c5e2",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "captainhook/plugin-composer": "^5.3",
+                "ergebnis/composer-normalize": "^2.45",
+                "fakerphp/faker": "^1.24",
+                "hamcrest/hamcrest-php": "^2.0",
+                "jangregor/phpstan-prophecy": "^2.1",
+                "mockery/mockery": "^1.6",
+                "php-parallel-lint/php-console-highlighter": "^1.0",
+                "php-parallel-lint/php-parallel-lint": "^1.4",
+                "phpspec/prophecy-phpunit": "^2.3",
+                "phpstan/extension-installer": "^1.4",
+                "phpstan/phpstan": "^2.1",
+                "phpstan/phpstan-mockery": "^2.0",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "phpunit/phpunit": "^10.5",
+                "ramsey/coding-standard": "^2.3",
+                "ramsey/conventional-commits": "^1.6",
+                "roave/security-advisories": "dev-latest"
+            },
+            "type": "library",
+            "extra": {
+                "captainhook": {
+                    "force-install": true
+                },
+                "ramsey/conventional-commits": {
+                    "configFile": "conventional-commits.json"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Ramsey\\Collection\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ben Ramsey",
+                    "email": "ben@benramsey.com",
+                    "homepage": "https://benramsey.com"
+                }
+            ],
+            "description": "A PHP library for representing and manipulating collections.",
+            "keywords": [
+                "array",
+                "collection",
+                "hash",
+                "map",
+                "queue",
+                "set"
+            ],
+            "support": {
+                "issues": "https://github.com/ramsey/collection/issues",
+                "source": "https://github.com/ramsey/collection/tree/2.1.1"
+            },
+            "time": "2025-03-22T05:38:12+00:00",
+            "published-time": "2025-03-22T05:39:22+00:00"
+        },
+        {
+            "name": "ramsey/uuid",
+            "version": "4.10.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ramsey/uuid.git",
+                "reference": "f9aa3efc8015fcbc013d84d699583b268ccb593a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ramsey/uuid/zipball/f9aa3efc8015fcbc013d84d699583b268ccb593a",
+                "reference": "f9aa3efc8015fcbc013d84d699583b268ccb593a",
+                "shasum": ""
+            },
+            "require": {
+                "brick/math": "^0.8.16 || ^0.9 || ^0.10 || ^0.11 || ^0.12 || ^0.13 || ^0.14 || ^0.15 || ^0.16 || ^0.17 || ^0.18 || ^0.19 || ^0.20 || ^1.0",
+                "php": "^8.0",
+                "ramsey/collection": "^1.2 || ^2.0"
+            },
+            "replace": {
+                "rhumsaa/uuid": "self.version"
+            },
+            "require-dev": {
+                "captainhook/captainhook": "^5.29.3",
+                "captainhook/plugin-composer": "^5.3.3",
+                "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
+                "mockery/mockery": "^1.6.15",
+                "paragonie/random-lib": "^2.0.3",
+                "php-mock/php-mock": "^2.7.0",
+                "php-mock/php-mock-mockery": "^1.5.0",
+                "php-parallel-lint/php-parallel-lint": "^1.4.0",
+                "phpbench/phpbench": "^1.2.14",
+                "phpstan/extension-installer": "^1.4.3",
+                "phpstan/phpstan": "^2.3.5",
+                "phpstan/phpstan-mockery": "^2.0.0",
+                "phpstan/phpstan-phpunit": "^2.1.2",
+                "phpunit/phpunit": "^9.6.39",
+                "slevomat/coding-standard": "^8.31.3",
+                "squizlabs/php_codesniffer": "^4.0.4"
+            },
+            "suggest": {
+                "ext-bcmath": "Enables faster math with arbitrary-precision integers using BCMath.",
+                "ext-gmp": "Enables faster math with arbitrary-precision integers using GMP.",
+                "ext-uuid": "Enables the use of PeclUuidTimeGenerator and PeclUuidRandomGenerator.",
+                "paragonie/random-lib": "Provides RandomLib for use with the RandomLibAdapter",
+                "ramsey/uuid-doctrine": "Allows the use of Ramsey\\Uuid\\Uuid as Doctrine field type."
+            },
+            "type": "library",
+            "extra": {
+                "captainhook": {
+                    "force-install": true
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/functions.php"
+                ],
+                "psr-4": {
+                    "Ramsey\\Uuid\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "A PHP library for generating and working with universally unique identifiers (UUIDs).",
+            "keywords": [
+                "guid",
+                "identifier",
+                "uuid"
+            ],
+            "support": {
+                "issues": "https://github.com/ramsey/uuid/issues",
+                "source": "https://github.com/ramsey/uuid/tree/4.10.0"
+            },
+            "time": "2026-11-14T23:23:20+00:00",
+            "published-time": "2026-11-14T23:35:39+00:00"
         },
         {
             "name": "react/cache",

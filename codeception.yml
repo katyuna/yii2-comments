@@ -19,6 +19,14 @@ modules:
 extensions:
   enabled:
     - Codeception\Extension\RunFailed
+    # Allure results for the combined report (make test-report); Playwright writes to the same folder
+    - Qameta\Allure\Codeception\AllureCodeception
+  config:
+    Qameta\Allure\Codeception\AllureCodeception:
+      # Relative to tests/Support/output -> tests/allure/results
+      outputDirectory: ../../allure/results
+      # Lets Allure ignore our own docblock tags such as @flowStep
+      setupHook: app\tests\Support\AllureSetupHook
 coverage:
   enabled: true
   include:

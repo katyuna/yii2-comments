@@ -7,6 +7,7 @@ namespace app\tests\Unit\models;
 use app\models\Comment;
 use app\models\CommentForm;
 use Codeception\Test\Unit;
+use Qameta\Allure\Allure;
 
 /**
  * Validation rules of the guest comment form (checklist U-01 … U-07).
@@ -18,6 +19,19 @@ use Codeception\Test\Unit;
  */
 final class CommentFormTest extends Unit
 {
+    /**
+     * Names the data provider case in the Allure report, so "spaces" and "empty string"
+     * show as two tests there, not as one test with retries.
+     *
+     * @return void
+     */
+    protected function _before(): void
+    {
+        if ($this->usesDataProvider()) {
+            Allure::parameter('Case', (string) $this->dataName());
+        }
+    }
+
     /**
      * U-01: a normal name and text pass validation.
      *

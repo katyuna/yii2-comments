@@ -135,11 +135,14 @@ services:
     working_dir: /e2e
     volumes:
       - ./tests/e2e:/e2e
+      # Allure results of all suites and the combined report (make test-report)
+      - ./tests/allure:/allure
     # ADMIN_* to log in, DB_* to reset app_test between tests
     env_file: .env
     environment:
       BASE_URL: http://nginx-test
       CI: ${CI:-}
+      ALLURE_RESULTS_DIR: /allure/results
       # Same value as php-test, so E-09 knows how long to wait for the token refresh
       CENTRIFUGO_TOKEN_TTL: ${CENTRIFUGO_TEST_TOKEN_TTL:-5}
     ipc: host
