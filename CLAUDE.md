@@ -165,12 +165,12 @@ docker/            Dockerfiles and configs per service
 | # | Flow step | Locked by |
 |---|---|---|
 | 1 | Guest fills in the form | — |
-| 2 | Validation and anti-spam (CSRF, honeypot, rate limit) | — |
-| 3 | Comment saved to MySQL | — |
-| 4 | Comment shown in the public feed (encoded) | — |
-| 5 | Event published to Centrifugo (HTTP API) | — |
-| 6 | Admin logs in / guest is denied | — |
-| 7 | Admin list subscribes to the channel (badge Live) | — |
+| 2 | Validation and anti-spam (CSRF, honeypot, rate limit) | unit `CommentFormTest`, `CommentServiceTest` (rate limit) |
+| 3 | Comment saved to MySQL | unit `CommentServiceTest` |
+| 4 | Comment shown in the public feed (encoded) | unit `CommentServiceTest` (order) |
+| 5 | Event published to Centrifugo (HTTP API) | unit `CommentServiceTest` (mock publisher) |
+| 6 | Admin logs in / guest is denied | unit `UserTest`, `LoginFormTest` |
+| 7 | Admin list subscribes to the channel (badge Live) | unit `CentrifugoTokenIssuerTest` |
 | 8 | New comment appears in the admin list without reload | — |
 | 9 | Admin edits / deletes a comment | — |
 
