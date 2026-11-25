@@ -8,4 +8,10 @@ return [
     'senderName' => 'Yii2 Comments',
     // Anti-spam: how many comments one IP may post per minute
     'commentRateLimitPerMinute' => (int) (getenv('COMMENT_RATE_LIMIT_PER_MINUTE') ?: 5),
+    // WebSocket server: PHP publishes events over its HTTP API, browsers connect with a JWT
+    'centrifugo' => [
+        'apiUrl' => getenv('CENTRIFUGO_API_URL') ?: 'http://centrifugo:8000/api',
+        'apiKey' => (string) getenv('CENTRIFUGO_API_KEY'),
+        'tokenSecret' => (string) getenv('CENTRIFUGO_TOKEN_SECRET'),
+    ],
 ];

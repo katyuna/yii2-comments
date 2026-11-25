@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace app\services;
 
+use Yii;
 use app\models\Comment;
 use app\models\CommentForm;
 use yii\data\ActiveDataProvider;
@@ -19,13 +20,16 @@ class CommentService
 
     /**
      * @param int $rateLimitPerMinute Max comments one IP may post per minute
+     * @param RealtimePublisherInterface $publisher Notifies admins about new comments
      */
-    public function __construct(private readonly int $rateLimitPerMinute)
-    {
+    public function __construct(
+        private readonly int $rateLimitPerMinute,
+        private readonly RealtimePublisherInterface $publisher,
+    ) {
     }
 
     /**
-     * Validates the guest form and saves a new comment.
+     * Validates the guest form, saves a new comment and notifies the admins in real time.
      *
      * Validation and rate limit errors are added to the form.
      *
@@ -54,6 +58,13 @@ class CommentService
             $form->addErrors($comment->getErrors());
 
             return null;
+        }
+
+        try {
+            $this->publisher->publishNewComment($comment);
+        } catch (RealtimePublishException $e) {
+            // The comment is already saved; a WebSocket problem must not become an error for the guest
+            Yii::error($e->getMessage(), __METHOD__);
         }
 
         return $comment;

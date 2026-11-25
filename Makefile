@@ -20,7 +20,7 @@ setup: install migrate migrate-test  ## First run after `make up`: dependencies 
 
 install:       ## Install PHP dependencies, make runtime folders writable for php-fpm
 	$(PHP) composer install
-	$(PHP) chmod 0777 runtime web/assets
+	$(PHP) chmod -R a+rwX runtime web/assets
 
 migrate:       ## Apply DB migrations to the app DB
 	$(PHP) php yii migrate --interactive=0

@@ -22,6 +22,13 @@ $config = [
             \app\services\CommentService::class => [
                 '__construct()' => [$params['commentRateLimitPerMinute']],
             ],
+            \app\services\RealtimePublisherInterface::class => [
+                'class' => \app\services\RealtimePublisher::class,
+                '__construct()' => [$params['centrifugo']['apiUrl'], $params['centrifugo']['apiKey']],
+            ],
+            \app\services\CentrifugoTokenIssuer::class => [
+                '__construct()' => [$params['centrifugo']['tokenSecret']],
+            ],
         ],
     ],
     'aliases' => [

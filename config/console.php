@@ -45,14 +45,8 @@ if (YII_ENV_DEV) {
     $config['modules']['gii'] = [
         'class' => \yii\gii\Module::class,
     ];
-    // configuration adjustments for 'dev' environment
-    // requires version `2.1.21` of yii2-debug module
-    $config['bootstrap'][] = 'debug';
-    $config['modules']['debug'] = [
-        'class' => \yii\debug\Module::class,
-        // uncomment the following to add your IP if you are not connecting from localhost.
-        //'allowedIPs' => ['127.0.0.1', '::1'],
-    ];
+    // No debug module here: console commands run as root in Docker, and its runtime/debug
+    // files would then be read-only for php-fpm, which breaks the web debug toolbar
 }
 
 return $config;
