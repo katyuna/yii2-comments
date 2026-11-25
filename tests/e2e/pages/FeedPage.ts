@@ -63,8 +63,12 @@ export class FeedPage {
   async postComment(author: string, text: string): Promise<void> {
     await this.author.fill(author);
     await this.text.fill(text);
+    // yiiActiveForm sends the form only after client validation, a moment after the click.
+    // waitForLoadState() would see the current, already loaded page and return before the POST
+    // left the browser, so wait for the next document instead (UI-14 lost its comment in CI).
+    const nextPage = this.page.waitForEvent('domcontentloaded');
     await this.submit.click();
-    await this.page.waitForLoadState('domcontentloaded');
+    await nextPage;
   }
 
   /**
