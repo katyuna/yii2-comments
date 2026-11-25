@@ -44,11 +44,14 @@ $comments = $dataProvider->getModels();
                     'data-testid' => 'comment-form-text',
                 ]) ?>
 
-                <?php // Honeypot: hidden from people, bots that fill every field get rejected ?>
+                <?php
+                // Honeypot: hidden from people, bots that fill every field get rejected.
+                // Plain inputs, not $form->field(): no error text, no client-side rule and no
+                // "is-invalid" class, so the page never tells a bot why its comment was dropped.
+                ?>
                 <div class="d-none" aria-hidden="true">
-                    <?= $form->field($commentForm, 'website', [
-                        'errorOptions' => ['class' => 'invalid-feedback', 'data-testid' => 'comment-form-website-error'],
-                    ])->textInput([
+                    <?= Html::activeLabel($commentForm, 'website') ?>
+                    <?= Html::activeTextInput($commentForm, 'website', [
                         'tabindex' => '-1',
                         'autocomplete' => 'off',
                         'data-testid' => 'comment-form-website',
