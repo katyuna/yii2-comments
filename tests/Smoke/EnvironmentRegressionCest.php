@@ -68,7 +68,10 @@ final class EnvironmentRegressionCest
         exec('php ' . escapeshellarg(codecept_root_dir('yii')) . ' help 2>&1', $output, $exitCode);
         $I->assertSame(0, $exitCode, implode("\n", $output));
 
-        // The dev app (container "nginx", YII_ENV=dev), not the test stand
+        // The dev app (container "nginx", YII_ENV=dev), not the test stand.
+        // One page view makes php-fpm write to runtime/debug (the write the bug broke);
+        // without it a fresh clone has no debug data and the panel answers 500.
+        $I->assertSame(200, $I->grabHttpStatus('http://nginx/', 30));
         // The panel lists every logged request, so on a busy dev app it can take a while
         $I->assertSame(200, $I->grabHttpStatus('http://nginx/debug/default/index', 30));
     }
