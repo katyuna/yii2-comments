@@ -221,6 +221,7 @@ A second copy of the app that only tests use, so tests never touch your data:
 | [@axe-core/playwright](https://github.com/dequelabs/axe-core-npm) | Automatic accessibility check (WCAG) of pages |
 | [mysql2](https://github.com/sidorares/node-mysql2) | Test setup only: empties `app_test` before each browser test and inserts data with fixed dates |
 | ESLint + `eslint-plugin-playwright` + Prettier + `tsc` | Style and common mistakes in the TypeScript tests (missing `await`, fixed waits); part of `make lint` |
+| [Allure Report](https://allurereport.org/) (`allure-codeception`, `allure-playwright`, `allure` CLI) | One report for all suites: `make test-report` |
 
 ### Rules the tests follow
 
@@ -241,6 +242,16 @@ A second copy of the app that only tests use, so tests never touch your data:
   design change: `make test-ui ARGS="--update-snapshots"`, then review the new images in the PR.
 
 ### Viewing the results
+
+**All suites in one report (Allure).** `make test-report` runs every suite (unit, functional, smoke
+incl. regression, UI, E2E in three browsers) and builds one
+[Allure Report](https://allurereport.org/): `tests/allure/report/index.html`. It is a single file —
+double-click it (Windows: `start tests\allure\report\index.html`). The report shows the total,
+every suite as a tree, each test with its steps, the error and, for browser tests, the screenshot,
+video and trace. Failed tests do not stop the run, so they appear in the report too. Each run replaces
+the previous report. Settings: `tests/e2e/allurerc.mjs` (e.g. `reportLanguage: 'ru'`).
+
+The per-tool views below are useful while working on one suite.
 
 **1. In the terminal.** Every `make test-…` command prints each test and a summary:
 Codeception — `✔` / `✖` per test and `OK (42 tests, …)` or `FAILURES!` with the reason of each failure;
@@ -307,6 +318,7 @@ Smoke, UI и E2E сначала поднимают **тестовый стенд
 | [@axe-core/playwright](https://github.com/dequelabs/axe-core-npm) | Автоматическая проверка доступности страниц (WCAG) |
 | [mysql2](https://github.com/sidorares/node-mysql2) | Только подготовка данных: очищает `app_test` перед каждым браузерным тестом и добавляет записи с фиксированными датами |
 | ESLint + `eslint-plugin-playwright` + Prettier + `tsc` | Стиль и типичные ошибки в TypeScript-тестах (забытый `await`, фиксированные паузы); входит в `make lint` |
+| [Allure Report](https://allurereport.org/) (`allure-codeception`, `allure-playwright`, сборщик `allure`) | Один отчёт по всем сьютам: `make test-report` |
 
 ### Правила, по которым написаны тесты
 
@@ -327,6 +339,16 @@ Smoke, UI и E2E сначала поднимают **тестовый стенд
   изменения дизайна: `make test-ui ARGS="--update-snapshots"`, затем просмотреть новые картинки в PR.
 
 ### Как смотреть результаты
+
+**Все сьюты в одном отчёте (Allure).** `make test-report` прогоняет все сьюты (unit, functional, smoke
+вместе с регрессионными, UI, E2E в трёх браузерах) и собирает один
+[Allure Report](https://allurereport.org/): `tests/allure/report/index.html`. Это один файл —
+откройте его двойным кликом (в Windows: `start tests\allure\report\index.html`). В отчёте общий итог,
+дерево сьютов, у каждого теста шаги, текст ошибки, а у браузерных тестов ещё скриншот, видео и
+трассировка. Упавшие тесты не останавливают прогон, поэтому тоже попадают в отчёт. Каждый запуск
+заменяет прошлый отчёт. Настройки — `tests/e2e/allurerc.mjs` (например, `reportLanguage: 'ru'`).
+
+Способы ниже удобны, когда работаете с одним сьютом.
 
 **1. В терминале.** Каждая команда `make test-…` выводит каждый тест и итог:
 Codeception — `✔` / `✖` по тестам и `OK (42 tests, …)` или `FAILURES!` с причиной каждого падения;

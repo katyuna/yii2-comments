@@ -81,8 +81,16 @@ test-regress: test-up e2e-deps  ## Everything tagged regression, in all suites
 	$(PHP) vendor/bin/codecept run -g regression
 	$(PW) npx playwright test --grep @regression
 
-test-report:   ## Path of the last Playwright HTML report
-	@echo Open tests/e2e/playwright-report/index.html in a browser
+# One Allure report with every suite. "-" lets make go on when a suite has failures,
+# so the report also shows the failed tests; old results are removed first.
+test-report: test-up e2e-deps  ## Run all suites, build one report: tests/allure/report/index.html
+	$(DC) --profile test run --rm --no-deps playwright rm -rf /allure/results /allure/report
+	-$(PHP) vendor/bin/codecept run Unit
+	-$(PHP) vendor/bin/codecept run Functional
+	-$(PHP) vendor/bin/codecept run Smoke
+	-$(PW) npx playwright test
+	$(DC) --profile test run --rm --no-deps playwright npx allure generate /allure/results
+	@echo Report: open tests/allure/report/index.html in a browser
 
 test: test-unit test-func test-smoke test-ui test-e2e  ## All suites
 

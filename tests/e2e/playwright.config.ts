@@ -37,6 +37,8 @@ export default defineConfig({
     ['list'],
     ['html', { open: 'never', outputFolder: 'playwright-report' }],
     ['junit', { outputFile: 'test-results/junit.xml' }],
+    // Results for the combined Allure report (make test-report), next to the Codeception ones
+    ['allure-playwright', { resultsDir: process.env.ALLURE_RESULTS_DIR ?? 'allure-results' }],
   ],
   use: {
     baseURL: process.env.BASE_URL ?? 'http://localhost:8081',

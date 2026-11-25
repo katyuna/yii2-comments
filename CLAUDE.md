@@ -60,6 +60,7 @@ make test-ui       # Playwright, project "ui" (Chromium)
 make test-e2e      # Playwright, projects e2e-chromium/-firefox/-webkit
 make test-regress  # all suites, group/tag "regression"
 make test          # all suites
+make test-report   # all suites + one Allure report: tests/allure/report/index.html
 make lint          # php-cs-fixer (dry-run) + phpstan + ESLint/Prettier/tsc for tests/e2e
 make fix           # php-cs-fixer fix + eslint --fix/prettier for tests/e2e
 ```
