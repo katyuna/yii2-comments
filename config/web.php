@@ -19,6 +19,9 @@ $config = [
                 'useFileTransport' => true,
                 'viewPath' => '@app/mail',
             ],
+            \app\services\CommentService::class => [
+                '__construct()' => [$params['commentRateLimitPerMinute']],
+            ],
         ],
     ],
     'aliases' => [

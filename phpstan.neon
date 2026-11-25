@@ -3,6 +3,8 @@ parameters:
 
     paths:
         - assets
+        - migrations
+        - services
         - config
         - controllers
         - models
